@@ -40,7 +40,7 @@ void *ioth_kernel_newstack(const char *vnlv[], struct ioth_functions *ioth_f) {
   ioth_f->send = send;
   ioth_f->sendto = sendto;
   ioth_f->sendmsg = sendmsg;
-	return NULL;
+	return (void *) 42; // useless, but retval == NULL means error!
 }
 
 int ioth_kernel_delstack(void *stackdata) {

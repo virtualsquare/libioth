@@ -87,6 +87,7 @@ static inline char *gethomedir(void) {
 static void *ioth_dlopen(const char *modname, int flags) {
 	char path[PATH_MAX];
 	char *homedir = gethomedir();
+
 #define TRY_DLOPEN(...) \
 do { \
 	void *handle; \
@@ -122,7 +123,7 @@ struct ioth *ioth_newstackv(const char *stack, const char *vnlv[]) {
   iothstack->handle = ioth_dlopen(stack, RTLD_NOW);
 	// printf("dlopen %p\n", iothstack->handle);
   if (iothstack->handle == NULL)
-    gotoerr (ENOENT, errdl);
+    gotoerr (ENOTSUP, errdl);
 	iothstack->f.getstackdata = getstackdata;
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wpedantic"
@@ -133,6 +134,8 @@ struct ioth *ioth_newstackv(const char *stack, const char *vnlv[]) {
 	if (iothstack->f.newstack == NULL)
     gotoerr (ENOENT, errdl);
   iothstack->stackdata = iothstack->f.newstack(vnlv, &iothstack->f);
+	if (iothstack->stackdata == NULL)
+    goto errdl;
   return iothstack;
 errdl:
   free(iothstack);
@@ -215,7 +218,7 @@ int ioth_msocket(struct ioth *iothstack, int domain, int type, int protocol) {
 #define IOTH_getiothstack(fd) \
 	struct ioth *iothstack = ioth_getstack(fd); \
 	if (iothstack == NULL) \
-	return errno = EBADFD, -1; \
+	return errno = EBADF, -1; \
 	stackdata = iothstack->stackdata
 
 #define IOTH_getiothstack_ck(fd, fun) \
@@ -227,10 +230,10 @@ int ioth_close(int fd) {
 	int retval;
 	struct ioth **ioth = fduserdata_get(fdtable, fd);
 	if (ioth == NULL)
-    return errno = EBADFD, -1;
+    return errno = EBADF, -1;
   struct ioth *iothstack = *ioth;
 	if (iothstack == NULL)
-    return errno = EBADFD, -1;
+    return errno = EBADF, -1;
 	if (iothstack->f.close == NULL)
     return errno = ENOSYS, -1;
 	retval = iothstack->f.close(fd);
