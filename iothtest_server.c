@@ -28,19 +28,19 @@
 #include <libioth.h>
 
 void *handle (void *arg) {
-    int connfd = (uintptr_t) arg;
-    int n;
-    char buf[BUFSIZ];
-    printf("new conn %d tid %d\n", connfd, gettid());
-    for(;;) {
-        if ((n = ioth_recv(connfd, buf, BUFSIZ, 0)) <= 0)
-            break;
-        printf("tid %d GOT: %*.*s",gettid(),n,n,buf);
-        ioth_send(connfd, buf, n, 0);
-    }
-    printf("close conn %d tid %d\n", connfd, gettid());
-    ioth_close(connfd);
-    return NULL;
+	int connfd = (uintptr_t) arg;
+	int n;
+	char buf[BUFSIZ];
+	printf("new conn %d tid %d\n", connfd, gettid());
+	for(;;) {
+		if ((n = ioth_recv(connfd, buf, BUFSIZ, 0)) <= 0)
+			break;
+		printf("tid %d GOT: %*.*s",gettid(),n,n,buf);
+		ioth_send(connfd, buf, n, 0);
+	}
+	printf("close conn %d tid %d\n", connfd, gettid());
+	ioth_close(connfd);
+	return NULL;
 }
 
 void server(struct ioth *mystack) {

@@ -77,11 +77,11 @@ static void *getstackdata(void) {
 #define MODULES_EXT ".so"
 
 static inline char *gethomedir(void) {
-  char *homedir = getenv("HOME");
-  /* If there is no home directory, use CWD */
-  if (!homedir)
-    homedir = ".";
-  return homedir;
+	char *homedir = getenv("HOME");
+	/* If there is no home directory, use CWD */
+	if (!homedir)
+		homedir = ".";
+	return homedir;
 }
 
 static void *ioth_dlopen(const char *modname, int flags) {
@@ -89,19 +89,19 @@ static void *ioth_dlopen(const char *modname, int flags) {
 	char *homedir = gethomedir();
 
 #define TRY_DLOPEN(...) \
-do { \
-	void *handle; \
-  snprintf(path, PATH_MAX, __VA_ARGS__); \
-  if ((handle = dlmopen(LM_ID_NEWLM, path, flags))) { \
-    return handle; \
-  } \
-} while(0)
+	do { \
+		void *handle; \
+		snprintf(path, PATH_MAX, __VA_ARGS__); \
+		if ((handle = dlmopen(LM_ID_NEWLM, path, flags))) { \
+			return handle; \
+		} \
+	} while(0)
 	TRY_DLOPEN("%s%s/ioth_%s", homedir, USER_IOTH_PATH, modname);
-  TRY_DLOPEN("%s%s/ioth_%s%s", homedir, USER_IOTH_PATH, modname, MODULES_EXT);
-  TRY_DLOPEN("%s/ioth_%s", SYSTEM_IOTH_PATH, modname);
-  TRY_DLOPEN("%s/ioth_%s%s", SYSTEM_IOTH_PATH, modname, MODULES_EXT);
+	TRY_DLOPEN("%s%s/ioth_%s%s", homedir, USER_IOTH_PATH, modname, MODULES_EXT);
+	TRY_DLOPEN("%s/ioth_%s", SYSTEM_IOTH_PATH, modname);
+	TRY_DLOPEN("%s/ioth_%s%s", SYSTEM_IOTH_PATH, modname, MODULES_EXT);
 #ifdef DEBUG
-  TRY_DLOPEN("./ioth_%s%s", modname, MODULES_EXT);
+	TRY_DLOPEN("./ioth_%s%s", modname, MODULES_EXT);
 #endif
 #undef TRY_DLOPEN
 	return NULL;
@@ -117,13 +117,13 @@ static void *ioth_dlsym(void *handle, const char *modname, const char *symbol) {
 
 #define gotoerr(err, label) do {errno = err; goto label;} while(0)
 struct ioth *ioth_newstackv(const char *stack, const char *vnlv[]) {
-  struct ioth *iothstack = calloc(1, sizeof(struct ioth));
-  if (iothstack == NULL)
-    gotoerr (ENOMEM, retNULL);
-  iothstack->handle = ioth_dlopen(stack, RTLD_NOW);
+	struct ioth *iothstack = calloc(1, sizeof(struct ioth));
+	if (iothstack == NULL)
+		gotoerr (ENOMEM, retNULL);
+	iothstack->handle = ioth_dlopen(stack, RTLD_NOW);
 	// printf("dlopen %p\n", iothstack->handle);
-  if (iothstack->handle == NULL)
-    gotoerr (ENOTSUP, errdl);
+	if (iothstack->handle == NULL)
+		gotoerr (ENOTSUP, errdl);
 	iothstack->f.getstackdata = getstackdata;
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wpedantic"
@@ -132,86 +132,86 @@ struct ioth *ioth_newstackv(const char *stack, const char *vnlv[]) {
 #undef __MACROFUN
 #pragma GCC diagnostic pop
 	if (iothstack->f.newstack == NULL)
-    gotoerr (ENOENT, errdl);
-  iothstack->stackdata = iothstack->f.newstack(vnlv, &iothstack->f);
+		gotoerr (ENOENT, errdl);
+	iothstack->stackdata = iothstack->f.newstack(vnlv, &iothstack->f);
 	if (iothstack->stackdata == NULL)
-    goto errdl;
-  return iothstack;
+		goto errdl;
+	return iothstack;
 errdl:
-  free(iothstack);
+	free(iothstack);
 retNULL:
-  return NULL;
+	return NULL;
 }
 
 int ioth_delstack(struct ioth *iothstack) {
-  int retval;
-  if (iothstack->count > 0)
-    return errno = EBUSY, -1;
+	int retval;
+	if (iothstack->count > 0)
+		return errno = EBUSY, -1;
 	if (iothstack->f.delstack == NULL)
 		return errno = ENOSYS, -1;
-  retval = iothstack->f.delstack(iothstack->stackdata);
-  if (retval == 0) {
-    dlclose(iothstack->handle);
-    free(iothstack);
-  }
-  return retval;
+	retval = iothstack->f.delstack(iothstack->stackdata);
+	if (retval == 0) {
+		dlclose(iothstack->handle);
+		free(iothstack);
+	}
+	return retval;
 }
 
 struct ioth *ioth_newstack(const char *stack) {
-  const char *vnlv[] = {(char *) NULL};
-  return ioth_newstackv(stack, vnlv);
+	const char *vnlv[] = {(char *) NULL};
+	return ioth_newstackv(stack, vnlv);
 }
 
 struct ioth *ioth_newstacki(const char *stack, const char *vnl) {
-  const char *vnlv[] = {vnl, (char *) NULL};
-  return ioth_newstackv(stack, vnlv);
+	const char *vnlv[] = {vnl, (char *) NULL};
+	return ioth_newstackv(stack, vnlv);
 }
 
 struct ioth *ioth_newstackl(const char *stack, const char *vnl, ... /* (char  *) NULL */) {
-  if (vnl == (char *) NULL)
-    return ioth_newstack(stack);
-  else {
-    va_list ap;
-    int countargs;
-    va_start(ap, vnl);
-    for (countargs = 1; va_arg(ap, const char *) != (char *) NULL; countargs++)
-      ;
-    va_end(ap);
-    const char *vnlv[countargs + 1];
-    vnlv[0] = vnl;
-    va_start(ap, vnl);
-    for (countargs = 1;
-        (vnlv[countargs] = va_arg(ap, const char *)) != (char *) NULL;
-        countargs++)
-      ;
-    va_end(ap);
-    return ioth_newstackv(stack, vnlv);
-  }
+	if (vnl == (char *) NULL)
+		return ioth_newstack(stack);
+	else {
+		va_list ap;
+		int countargs;
+		va_start(ap, vnl);
+		for (countargs = 1; va_arg(ap, const char *) != (char *) NULL; countargs++)
+			;
+		va_end(ap);
+		const char *vnlv[countargs + 1];
+		vnlv[0] = vnl;
+		va_start(ap, vnl);
+		for (countargs = 1;
+				(vnlv[countargs] = va_arg(ap, const char *)) != (char *) NULL;
+				countargs++)
+			;
+		va_end(ap);
+		return ioth_newstackv(stack, vnlv);
+	}
 }
 
 static inline struct ioth *ioth_getstack(int fd) {
 	struct ioth **ioth = fduserdata_get(fdtable, fd);
 	if (ioth == NULL)
 		return NULL;
-  struct ioth *iothstack = *ioth;
-  fduserdata_put(ioth);
+	struct ioth *iothstack = *ioth;
+	fduserdata_put(ioth);
 	return iothstack;
 }
 
 int ioth_msocket(struct ioth *iothstack, int domain, int type, int protocol) {
-  int fd;
+	int fd;
 	iothstack->count++;
 	stackdata = iothstack->stackdata;
 	if (iothstack->f.socket == NULL)
 		return errno = ENOSYS, -1;
 	fd = iothstack->f.socket(domain, type, protocol);
-  if (fd < 0)
-    iothstack->count--;
-  else {
-    struct ioth **ioth = fduserdata_new(fdtable, fd, struct ioth *);
-    *ioth = iothstack;
-    fduserdata_put(ioth);
-  }
+	if (fd < 0)
+		iothstack->count--;
+	else {
+		struct ioth **ioth = fduserdata_new(fdtable, fd, struct ioth *);
+		*ioth = iothstack;
+		fduserdata_put(ioth);
+	}
 	return fd;
 }
 
@@ -224,18 +224,18 @@ int ioth_msocket(struct ioth *iothstack, int domain, int type, int protocol) {
 #define IOTH_getiothstack_ck(fd, fun) \
 	IOTH_getiothstack(fd); \
 	if (iothstack->f.fun == NULL) \
-    return errno = ENOSYS, -1
+	return errno = ENOSYS, -1
 
 int ioth_close(int fd) {
 	int retval;
 	struct ioth **ioth = fduserdata_get(fdtable, fd);
 	if (ioth == NULL)
-    return errno = EBADF, -1;
-  struct ioth *iothstack = *ioth;
+		return errno = EBADF, -1;
+	struct ioth *iothstack = *ioth;
 	if (iothstack == NULL)
-    return errno = EBADF, -1;
+		return errno = EBADF, -1;
 	if (iothstack->f.close == NULL)
-    return errno = ENOSYS, -1;
+		return errno = ENOSYS, -1;
 	retval = iothstack->f.close(fd);
 	if (retval == 0) {
 		iothstack->count--;
@@ -261,13 +261,13 @@ static ssize_t _ioth_read(struct ioth *iothstack, int fd, void *buf, size_t len)
 ssize_t _ioth_readv(struct ioth *iothstack, int fd, const struct iovec *iov, int iovcnt);
 ssize_t _ioth_recv(struct ioth *iothstack, int fd, void *buf, size_t len, int flags);
 ssize_t _ioth_recvfrom(struct ioth *iothstack, int fd, void *buf, size_t len, int flags,
-    struct sockaddr *from, socklen_t *fromlen);
+		struct sockaddr *from, socklen_t *fromlen);
 ssize_t _ioth_recvmsg(struct ioth *iothstack, int fd, struct msghdr *msg, int flags);
 ssize_t _ioth_write(struct ioth *iothstack, int fd, const void *buf, size_t size);
 ssize_t _ioth_writev(struct ioth *iothstack, int fd, const struct iovec *iov, int iovcnt);
 ssize_t _ioth_send(struct ioth *iothstack, int fd, const void *buf, size_t size, int flags);
 ssize_t _ioth_sendto(struct ioth *iothstack, int fd, const void *buf, size_t size, int flags,
-    const struct sockaddr *to, socklen_t tolen);
+		const struct sockaddr *to, socklen_t tolen);
 ssize_t _ioth_sendmsg(struct ioth *iothstack, int fd, const struct msghdr *msg, int flags);
 
 static ssize_t _ioth_read(struct ioth *iothstack, int fd, void *buf, size_t len) {
@@ -295,12 +295,12 @@ ssize_t _ioth_recv(struct ioth *iothstack, int fd, void *buf, size_t len, int fl
 }
 
 ssize_t _ioth_recvfrom(struct ioth *iothstack, int fd, void *buf, size_t len, int flags,
-    struct sockaddr *from, socklen_t *fromlen) {
+		struct sockaddr *from, socklen_t *fromlen) {
 	if (iothstack->f.recvfrom) 
 		return iothstack->f.recvfrom( fd, buf, len, flags, from, fromlen);
 	else if (iothstack->f.recvmsg) {
 		struct iovec iov[] = {{buf, len}};
-    struct msghdr mhdr = {
+		struct msghdr mhdr = {
 			.msg_name = from,
 			.msg_namelen = (fromlen) ? *fromlen : 0,
 			.msg_iov = iov,
@@ -321,49 +321,49 @@ ssize_t _ioth_recvmsg(struct ioth *iothstack, int fd, struct msghdr *msg, int fl
 
 ssize_t _ioth_write(struct ioth *iothstack, int fd, const void *buf, size_t len) {
 	if (iothstack->f.write)
-    return iothstack->f.write(fd, buf, len);
-  else
-    return _ioth_send(iothstack, fd, buf, len, 0);
+		return iothstack->f.write(fd, buf, len);
+	else
+		return _ioth_send(iothstack, fd, buf, len, 0);
 }
 
 ssize_t _ioth_writev(struct ioth *iothstack, int fd, const struct iovec *iov, int iovcnt) {
-	  if (iothstack->f.writev)
-    return iothstack->f.writev(fd, iov, iovcnt);
-  else if (iothstack->f.sendmsg) {
-    struct msghdr mhdr = { .msg_iov = (struct iovec *)iov, .msg_iovlen = iovcnt };
-    return iothstack->f.sendmsg(fd, &mhdr, 0);
-  } else // map to write
-    return errno = ENOSYS, -1;
+	if (iothstack->f.writev)
+		return iothstack->f.writev(fd, iov, iovcnt);
+	else if (iothstack->f.sendmsg) {
+		struct msghdr mhdr = { .msg_iov = (struct iovec *)iov, .msg_iovlen = iovcnt };
+		return iothstack->f.sendmsg(fd, &mhdr, 0);
+	} else // map to write
+		return errno = ENOSYS, -1;
 }
 
 ssize_t _ioth_send(struct ioth *iothstack, int fd, const void *buf, size_t len, int flags) {
 	if (iothstack->f.send)
-    return iothstack->f.send(fd, buf, len, flags);
-  else
-    return _ioth_sendto(iothstack, fd, buf, len, flags, NULL, 0);
+		return iothstack->f.send(fd, buf, len, flags);
+	else
+		return _ioth_sendto(iothstack, fd, buf, len, flags, NULL, 0);
 }
 
 ssize_t _ioth_sendto(struct ioth *iothstack, int fd, const void *buf, size_t len, int flags,
-    const struct sockaddr *to, socklen_t tolen) {
-	  if (iothstack->f.sendto)
-    return iothstack->f.sendto( fd, buf, len, flags, to, tolen);
-  else if (iothstack->f.sendmsg) {
-    struct iovec iov[] = {{(void *)buf, (size_t)len}};
-    struct msghdr mhdr = {
-      .msg_name = (struct sockaddr *) to,
-      .msg_namelen = tolen,
-      .msg_iov = iov,
-      .msg_iovlen = 1};
-    return iothstack->f.sendmsg(fd, &mhdr, flags);
-  } else
-    return errno = ENOSYS, -1;
+		const struct sockaddr *to, socklen_t tolen) {
+	if (iothstack->f.sendto)
+		return iothstack->f.sendto( fd, buf, len, flags, to, tolen);
+	else if (iothstack->f.sendmsg) {
+		struct iovec iov[] = {{(void *)buf, (size_t)len}};
+		struct msghdr mhdr = {
+			.msg_name = (struct sockaddr *) to,
+			.msg_namelen = tolen,
+			.msg_iov = iov,
+			.msg_iovlen = 1};
+		return iothstack->f.sendmsg(fd, &mhdr, flags);
+	} else
+		return errno = ENOSYS, -1;
 }
 
 ssize_t _ioth_sendmsg(struct ioth *iothstack, int fd, const struct msghdr *msg, int flags) {
-	  if (iothstack->f.sendmsg) {
-    return iothstack->f.sendmsg(fd, msg, flags);
-  } else
-    return errno = ENOSYS, -1;
+	if (iothstack->f.sendmsg) {
+		return iothstack->f.sendmsg(fd, msg, flags);
+	} else
+		return errno = ENOSYS, -1;
 }
 
 #define IOTH_stackfun(fd, fun) \
@@ -383,7 +383,7 @@ ssize_t ioth_recv(int fd, void *buf, size_t len, int flags) {
 }
 
 ssize_t ioth_recvfrom(int fd, void *buf, size_t len, int flags,
-    struct sockaddr *from, socklen_t *fromlen) {
+		struct sockaddr *from, socklen_t *fromlen) {
 	IOTH_stackfun(fd, recvfrom) (iothstack, fd, buf, len, flags, from, fromlen);
 }
 
@@ -404,7 +404,7 @@ ssize_t ioth_send(int fd, const void *buf, size_t len, int flags) {
 }
 
 ssize_t ioth_sendto(int fd, const void *buf, size_t len, int flags,
-    const struct sockaddr *to, socklen_t tolen) {
+		const struct sockaddr *to, socklen_t tolen) {
 	IOTH_stackfun(fd, sendto) (iothstack, fd, buf, len, flags, to, tolen);
 }
 
@@ -467,10 +467,10 @@ __attribute__((destructor))
 	}
 
 /*
-int main() {
-	//ioth_newstacki("picox", "vxvde://");
-	//ioth_newstackl("picox", "vde://", NULL);
-	//ioth_newstackl("picox", "vde://", "vxvde://234.0.0.0.1", "tap://tap0", NULL);
-	return 0;
+	 int main() {
+//ioth_newstacki("picox", "vxvde://");
+//ioth_newstackl("picox", "vde://", NULL);
+//ioth_newstackl("picox", "vde://", "vxvde://234.0.0.0.1", "tap://tap0", NULL);
+return 0;
 }*/
 
