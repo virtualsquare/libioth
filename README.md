@@ -176,7 +176,7 @@ void *ioth_foo_newstack(const char *vnlv[], struct ioth_functions *ioth_f) {
     // ioth->bind = ioth_foo_bind;
 
     // example 2: provide a specific function (explicit assignment)
-    // ioth->bind = mybind;
+    ioth->bind = mybind;
 
     .... and so on for all the other functions
      return stackdata;
