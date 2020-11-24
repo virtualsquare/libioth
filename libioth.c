@@ -56,37 +56,37 @@ static __thread void *stackdata;
 	__MACROFUN(sendto) \
 	__MACROFUN(sendmsg)
 
-static struct ioth_functions default_stack_functions = {
-	.socket = socket,
-	.close = close,
-	.bind = bind,
-	.connect = connect,
-	.listen = listen,
-	.accept = accept,
-	.getsockname = getsockname,
-	.getpeername = getpeername,
-	.setsockopt = setsockopt,
-	.getsockopt = getsockopt,
-	.shutdown = shutdown,
-	.ioctl = ioctl,
-	.fcntl = fcntl,
-	.read = read,
-	.readv = readv,
-	.recv = recv,
-	.recvfrom = recvfrom,
-	.recvmsg = recvmsg,
-	.write = write,
-	.writev = writev,
-	.send = send,
-	.sendto = sendto,
-	.sendmsg = sendmsg
-};
-
 struct ioth {
 	void *handle;
 	void *stackdata;
 	_Atomic unsigned int count;
 	struct ioth_functions f;
+};
+
+static struct ioth default_iothstack = {
+	.f.socket = socket,
+	.f.close = close,
+	.f.bind = bind,
+	.f.connect = connect,
+	.f.listen = listen,
+	.f.accept = accept,
+	.f.getsockname = getsockname,
+	.f.getpeername = getpeername,
+	.f.setsockopt = setsockopt,
+	.f.getsockopt = getsockopt,
+	.f.shutdown = shutdown,
+	.f.ioctl = ioctl,
+	.f.fcntl = fcntl,
+	.f.read = read,
+	.f.readv = readv,
+	.f.recv = recv,
+	.f.recvfrom = recvfrom,
+	.f.recvmsg = recvmsg,
+	.f.write = write,
+	.f.writev = writev,
+	.f.send = send,
+	.f.sendto = sendto,
+	.f.sendmsg = sendmsg
 };
 
 static void *getstackdata(void) {
@@ -147,7 +147,7 @@ struct ioth *ioth_newstackv(const char *stack, const char *vnlv[]) {
 	if (iothstack == NULL)
 		gotoerr (ENOMEM, retNULL);
 	if (stack == NULL || *stack == '\0')
-		iothstack->f = default_stack_functions;
+		*iothstack = default_iothstack;
 	else {
 		iothstack->handle = ioth_dlopen(stack, RTLD_NOW);
 		// printf("dlopen %p\n", iothstack->handle);
@@ -224,37 +224,36 @@ struct ioth *ioth_newstackl(const char *stack, const char *vnl, ... /* (char  *)
 static inline struct ioth *ioth_getstack(int fd) {
 	struct ioth **ioth = fduserdata_get(fdtable, fd);
 	if (ioth == NULL)
-		return NULL;
+		return &default_iothstack;
 	struct ioth *iothstack = *ioth;
 	fduserdata_put(ioth);
+	stackdata = iothstack->stackdata;
 	return iothstack;
 }
 
 int ioth_msocket(struct ioth *iothstack, int domain, int type, int protocol) {
 	int fd;
-	iothstack->count++;
-	stackdata = iothstack->stackdata;
-	if (iothstack->f.socket == NULL)
-		return errno = ENOSYS, -1;
-	fd = iothstack->f.socket(domain, type, protocol);
-	if (fd < 0)
-		iothstack->count--;
+	if (iothstack == NULL)
+		return socket(domain, type, protocol);
 	else {
-		struct ioth **ioth = fduserdata_new(fdtable, fd, struct ioth *);
-		*ioth = iothstack;
-		fduserdata_put(ioth);
+		iothstack->count++;
+		stackdata = iothstack->stackdata;
+		if (iothstack->f.socket == NULL)
+			return errno = ENOSYS, -1;
+		fd = iothstack->f.socket(domain, type, protocol);
+		if (fd < 0)
+			iothstack->count--;
+		else {
+			struct ioth **ioth = fduserdata_new(fdtable, fd, struct ioth *);
+			*ioth = iothstack;
+			fduserdata_put(ioth);
+		}
 	}
 	return fd;
 }
 
-#define IOTH_getiothstack(fd) \
-	struct ioth *iothstack = ioth_getstack(fd); \
-	if (iothstack == NULL) \
-	return errno = EBADF, -1; \
-	stackdata = iothstack->stackdata
-
 #define IOTH_getiothstack_ck(fd, fun) \
-	IOTH_getiothstack(fd); \
+	struct ioth *iothstack = ioth_getstack(fd); \
 	if (iothstack->f.fun == NULL) \
 	return errno = ENOSYS, -1
 
@@ -262,7 +261,7 @@ int ioth_close(int fd) {
 	int retval;
 	struct ioth **ioth = fduserdata_get(fdtable, fd);
 	if (ioth == NULL)
-		return errno = EBADF, -1;
+		return close(fd);
 	struct ioth *iothstack = *ioth;
 	if (iothstack == NULL)
 		return errno = EBADF, -1;
@@ -279,12 +278,22 @@ int ioth_close(int fd) {
 
 int ioth_accept(int fd, struct sockaddr *addr, socklen_t *addrlen) {
 	int newfd;
-	IOTH_getiothstack_ck(fd, accept);
+	struct ioth **ioth = fduserdata_get(fdtable, fd);
+  if (ioth == NULL)
+		return accept(fd, addr, addrlen);
+	struct ioth *iothstack = *ioth;
+	fduserdata_put(ioth);
+  if (iothstack == NULL)
+    return errno = EBADF, -1;
+	stackdata = iothstack->stackdata;
+  if (iothstack->f.accept == NULL)
+    return errno = ENOSYS, -1;
 	newfd = iothstack->f.accept(fd, addr, addrlen);
 	if (newfd >= 0) {
-		struct ioth **ioth = fduserdata_new(fdtable, newfd, struct ioth *);
-		*ioth = iothstack;
-		fduserdata_put(ioth);
+		struct ioth **newioth = fduserdata_new(fdtable, newfd, struct ioth *);
+		*newioth = iothstack;
+		iothstack->count++;
+		fduserdata_put(newioth);
 	}
 	return newfd;
 }
@@ -399,7 +408,7 @@ ssize_t _ioth_sendmsg(struct ioth *iothstack, int fd, const struct msghdr *msg, 
 }
 
 #define IOTH_stackfun(fd, fun) \
-	IOTH_getiothstack(fd); \
+	struct ioth *iothstack = ioth_getstack(fd); \
 	return _ioth_ ## fun
 
 ssize_t ioth_read(int fd, void *buf, size_t len) {
