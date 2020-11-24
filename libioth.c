@@ -56,6 +56,32 @@ static __thread void *stackdata;
 	__MACROFUN(sendto) \
 	__MACROFUN(sendmsg)
 
+static struct ioth_functions default_stack_functions = {
+	.socket = socket,
+	.close = close,
+	.bind = bind,
+	.connect = connect,
+	.listen = listen,
+	.accept = accept,
+	.getsockname = getsockname,
+	.getpeername = getpeername,
+	.setsockopt = setsockopt,
+	.getsockopt = getsockopt,
+	.shutdown = shutdown,
+	.ioctl = ioctl,
+	.fcntl = fcntl,
+	.read = read,
+	.readv = readv,
+	.recv = recv,
+	.recvfrom = recvfrom,
+	.recvmsg = recvmsg,
+	.write = write,
+	.writev = writev,
+	.send = send,
+	.sendto = sendto,
+	.sendmsg = sendmsg
+};
+
 struct ioth {
 	void *handle;
 	void *stackdata;
@@ -120,22 +146,26 @@ struct ioth *ioth_newstackv(const char *stack, const char *vnlv[]) {
 	struct ioth *iothstack = calloc(1, sizeof(struct ioth));
 	if (iothstack == NULL)
 		gotoerr (ENOMEM, retNULL);
-	iothstack->handle = ioth_dlopen(stack, RTLD_NOW);
-	// printf("dlopen %p\n", iothstack->handle);
-	if (iothstack->handle == NULL)
-		gotoerr (ENOTSUP, errdl);
-	iothstack->f.getstackdata = getstackdata;
+	if (stack == NULL || *stack == '\0')
+		iothstack->f = default_stack_functions;
+	else {
+		iothstack->handle = ioth_dlopen(stack, RTLD_NOW);
+		// printf("dlopen %p\n", iothstack->handle);
+		if (iothstack->handle == NULL)
+			gotoerr (ENOTSUP, errdl);
+		iothstack->f.getstackdata = getstackdata;
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wpedantic"
 #define __MACROFUN(X) iothstack->f.X = ioth_dlsym(iothstack->handle, stack, #X);
-	{ FOREACHDEFFUN }
+		{ FOREACHDEFFUN }
 #undef __MACROFUN
 #pragma GCC diagnostic pop
-	if (iothstack->f.newstack == NULL)
-		gotoerr (ENOENT, errdl);
-	iothstack->stackdata = iothstack->f.newstack(vnlv, &iothstack->f);
-	if (iothstack->stackdata == NULL)
-		goto errdl;
+		if (iothstack->f.newstack == NULL)
+			gotoerr (ENOENT, errdl);
+		iothstack->stackdata = iothstack->f.newstack(vnlv, &iothstack->f);
+		if (iothstack->stackdata == NULL)
+			goto errdl;
+	}
 	return iothstack;
 errdl:
 	free(iothstack);
@@ -148,10 +178,12 @@ int ioth_delstack(struct ioth *iothstack) {
 	if (iothstack->count > 0)
 		return errno = EBUSY, -1;
 	if (iothstack->f.delstack == NULL)
-		return errno = ENOSYS, -1;
-	retval = iothstack->f.delstack(iothstack->stackdata);
+		retval = 0;
+	else
+		retval = iothstack->f.delstack(iothstack->stackdata);
 	if (retval == 0) {
-		dlclose(iothstack->handle);
+		if (iothstack->handle != NULL)
+			dlclose(iothstack->handle);
 		free(iothstack);
 	}
 	return retval;
