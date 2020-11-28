@@ -82,7 +82,6 @@ static void *getstackdata(void) {
 #ifndef SYSTEM_IOTH_PATH
 #define SYSTEM_IOTH_PATH "/usr/local/lib/ioth"
 #endif
-#define MODULES_EXT ".so"
 
 static inline char *gethomedir(void) {
 	char *homedir = getenv("HOME");
@@ -96,20 +95,21 @@ static void *ioth_dlopen(const char *modname, int flags) {
 	char path[PATH_MAX];
 	char *homedir = gethomedir();
 
-#define TRY_DLOPEN(...) \
+#define TRY_DLOPEN(LMID, ...) \
 	do { \
 		void *handle; \
 		snprintf(path, PATH_MAX, __VA_ARGS__); \
-		if ((handle = dlmopen(LM_ID_NEWLM, path, flags))) { \
+		if ((handle = dlmopen(LMID, path, flags))) { \
 			return handle; \
 		} \
 	} while(0)
-	TRY_DLOPEN("%s%s/ioth_%s", homedir, USER_IOTH_PATH, modname);
-	TRY_DLOPEN("%s%s/ioth_%s%s", homedir, USER_IOTH_PATH, modname, MODULES_EXT);
-	TRY_DLOPEN("%s/ioth_%s", SYSTEM_IOTH_PATH, modname);
-	TRY_DLOPEN("%s/ioth_%s%s", SYSTEM_IOTH_PATH, modname, MODULES_EXT);
+	TRY_DLOPEN(LM_ID_BASE, "%s%s/ioth_%s-r.so", homedir, USER_IOTH_PATH, modname);
+	TRY_DLOPEN(LM_ID_NEWLM, "%s%s/ioth_%s.so", homedir, USER_IOTH_PATH, modname);
+	TRY_DLOPEN(LM_ID_BASE, "%s/ioth_%s-r.so", SYSTEM_IOTH_PATH, modname);
+	TRY_DLOPEN(LM_ID_NEWLM, "%s/ioth_%s.so", SYSTEM_IOTH_PATH, modname);
 #ifdef DEBUG
-	TRY_DLOPEN("./ioth_%s%s", modname, MODULES_EXT);
+	TRY_DLOPEN(LM_ID_BASE, "./ioth_%s-r.so", modname);
+	TRY_DLOPEN(LM_ID_NEWLM, "./ioth_%s.so", modname);
 #endif
 #undef TRY_DLOPEN
 	return NULL;
