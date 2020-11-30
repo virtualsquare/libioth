@@ -58,3 +58,10 @@ int ioth_vdestack_socket(int domain, int type, int protocol) {
 	struct vdestack *stackdata = getstackdata();
 	return vde_msocket(stackdata, domain, type, protocol);
 }
+
+void *ioth_vdestack_n_newstack(const char *vnlv[], struct ioth_functions *ioth_f)
+  __attribute__ ((alias ("ioth_vdestack_newstack")));
+int ioth_vdestack_n_delstack(void *stackdata)
+  __attribute__ ((alias ("ioth_vdestack_delstack")));
+int ioth_vdestack_n_socket(int domain, int type, int protocol)
+  __attribute__ ((alias ("ioth_vdestack_socket")));

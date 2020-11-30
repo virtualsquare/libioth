@@ -94,3 +94,14 @@ int ioth_picox_fcntl(int fd, int cmd, ...) {
 	va_end(ap);
 	return picox_fcntl(fd, cmd, arg);
 }
+
+void *ioth_picox_n_newstack(const char *vnlv[], struct ioth_functions *ioth_f)
+  __attribute__ ((alias ("ioth_picox_newstack")));
+int ioth_picox_n_delstack(void *stackdata)
+  __attribute__ ((alias ("ioth_picox_delstack")));
+int ioth_picox_n_socket(int domain, int type, int protocol)
+  __attribute__ ((alias ("ioth_picox_socket")));
+int ioth_picox_n_ioctl(int fd, unsigned long request, ...)
+  __attribute__ ((alias ("ioth_picox_ioctl")));
+int ioth_picox_n_fcntl(int fd, int cmd, ...)
+  __attribute__ ((alias ("ioth_picox_fcntl")));

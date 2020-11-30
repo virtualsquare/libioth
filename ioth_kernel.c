@@ -42,3 +42,6 @@ void *ioth_kernel_newstack(const char *vnlv[], struct ioth_functions *ioth_f) {
 	ioth_f->sendmsg = sendmsg;
 	return (void *) 42; // useless, but retval == NULL means error!
 }
+
+void *ioth_kernel_n_newstack(const char *vnlv[], struct ioth_functions *ioth_f)
+	__attribute__ ((alias ("ioth_kernel_newstack")));
