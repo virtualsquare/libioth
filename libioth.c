@@ -144,12 +144,14 @@ struct ioth *ioth_newstackv(const char *stack, const char *vnlv[]) {
 #undef __MACROFUN
 #pragma GCC diagnostic pop
 		if (iothstack->f.newstack == NULL)
-			gotoerr (ENOENT, errdl);
+			gotoerr (ENOENT, errnoioth);
 		iothstack->stackdata = iothstack->f.newstack(vnlv, &iothstack->f);
 		if (iothstack->stackdata == NULL)
-			goto errdl;
+			goto errnoioth;
 	}
 	return iothstack;
+errnoioth:
+	dlclose(iothstack->handle);
 errdl:
 	free(iothstack);
 retNULL:
