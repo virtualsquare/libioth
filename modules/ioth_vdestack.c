@@ -43,10 +43,13 @@
 struct vdestack {
 	pid_t pid;
 	pid_t parentpid;
+	int noif;
 	int cmdpipe[2]; // socketpair for commands;
-	VDECONN *vdeconn;
 	char *child_stack;
-	char ifname[];
+	struct {
+		VDECONN *vdeconn;
+		char ifname[IFNAMSIZ];
+	} iface[];
 };
 
 struct vdecmd {
@@ -69,6 +72,7 @@ static int open_tap(char *name) {
 	ifr.ifr_flags = IFF_TAP | IFF_NO_PI;
 	strncpy(ifr.ifr_name, name, sizeof(ifr.ifr_name) - 1);
 	if(ioctl(fd, TUNSETIFF, (void *) &ifr) < 0) {
+		perror(name);
 		close(fd);
 		return -1;
 	}
@@ -78,25 +82,27 @@ static int open_tap(char *name) {
 static int childFunc(void *arg)
 {
 	struct vdestack *stack = arg;
-	int n;
-	char buf[VDE_ETHBUFSIZE];
-	int tapfd = open_tap(stack->ifname);
-	VDECONN *conn = stack->vdeconn;
-	struct pollfd pfd[] = {{stack->cmdpipe[DAEMONSIDE], POLLIN, 0},
-		{tapfd, POLLIN, 0},
-		{vde_datafd(conn), POLLIN, 0}};
-	if (tapfd  < 0) {
-		perror("tapfd"); _exit(1);
-	}
-	pfd[1].fd = tapfd;
-	while (poll(pfd, 3, POLLING_TIMEOUT) >= 0) {
+	int noif = stack->noif;
+	struct pollfd pfd[noif * 2 + 1];
+	int i;
+	for (i = 0; i < noif; i++) {
+    pfd[i].fd = vde_datafd(stack->iface[i].vdeconn);
+    pfd[i + noif].fd = open_tap(stack->iface[i].ifname);
+    pfd[i].events = pfd[i + noif].events = POLLIN;
+    pfd[i].revents = pfd[i + noif].revents = 0;
+  }
+  pfd[noif * 2].fd = stack->cmdpipe[DAEMONSIDE];
+  pfd[noif * 2].events = POLLIN;
+  pfd[noif * 2].revents = 0;
+	while (poll(pfd, noif * 2 + 1, POLLING_TIMEOUT) >= 0) {
+		char buf[VDE_ETHBUFSIZE];
+		size_t n;
 		// printf("poll in %d %d %d\n",pfd[0].revents,pfd[1].revents,pfd[2].revents);
 		if (kill(stack->parentpid, 0) < 0)
 			break;
-		if (pfd[0].revents & POLLIN) {
+		if (pfd[noif * 2].revents & POLLIN) {
 			struct vdecmd cmd;
 			struct vdereply reply;
-			int n;
 			if ((n = read(stack->cmdpipe[DAEMONSIDE], &cmd, sizeof(cmd))) > 0) {
 				reply.rval = socket(cmd.domain, cmd.type, cmd.protocol);
 				reply.err = errno;
@@ -104,29 +110,43 @@ static int childFunc(void *arg)
 			} else
 				break;
 		}
-		if (pfd[1].revents & POLLIN) {
-			n = read(tapfd, buf, VDE_ETHBUFSIZE);
-			if (n == 0) break;
-			vde_send(conn, buf, n, 0);
-		}
-		if (pfd[2].revents & POLLIN) {
-			n = vde_recv(conn, buf, VDE_ETHBUFSIZE, 0);
-			if (n == 0) break;
-			write(tapfd, buf, n);
+		for (i = 0; i < noif; i++) {
+			if (pfd[i + noif].revents & POLLIN) {
+				n = read(pfd[i + noif].fd, buf, VDE_ETHBUFSIZE);
+				if (n <= 0) break;
+				vde_send(stack->iface[i].vdeconn, buf, n, 0);
+			}
+			if (pfd[i].revents & POLLIN) {
+				n = vde_recv(stack->iface[i].vdeconn, buf, VDE_ETHBUFSIZE, 0);
+				if (n <= 0) break;
+				write(pfd[i + noif].fd, buf, n);
+			}
 		}
 		//printf("poll out\n");
+	}
+	for (i = 0; i < noif; i++) {
+		if (pfd[i + noif].fd >= 0)
+			close(pfd[i + noif].fd);
 	}
 	close(stack->cmdpipe[DAEMONSIDE]);
 	_exit(EXIT_SUCCESS);
 }
 
-struct vdestack *vde_addstack(char *vdenet, char *ifname) {
-	char *ifnameok = ifname ? ifname : DEFAULT_IF_NAME;
-	size_t ifnameoklen = strlen(ifnameok);
-	struct vdestack *stack = malloc(sizeof(*stack) + ifnameoklen + 1);
+static int countif(const char **v) {
+	int count;
+	if (v == NULL) return 0;
+	for (count = 0; v[count]; count++)
+		;
+	return count;
+}
 
+struct vdestack *vde_addstack(const char *vnlv[], const char *options) {
+	int i;
+	int noif = countif(vnlv);
+	struct vdestack *stack = malloc(sizeof(*stack) + sizeof(stack->iface[0]) * noif);
 	if (stack) {
-		strncpy(stack->ifname, ifnameok, ifnameoklen + 1);
+		//printf("noif %d\n",noif);
+		stack->noif = noif;
 		stack->child_stack =
 			mmap(0, CHILD_STACK_SIZE, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0);
 		if (stack->child_stack == NULL)
@@ -135,8 +155,24 @@ struct vdestack *vde_addstack(char *vdenet, char *ifname) {
 		if (socketpair(AF_UNIX, SOCK_SEQPACKET | SOCK_CLOEXEC, 0, stack->cmdpipe) < 0)
 			goto err_cmdpipe;
 
-		if ((stack->vdeconn = vde_open(vdenet, "vdestack", NULL)) == NULL)
-			goto err_vdenet;
+		for (i = 0; i < noif; i++)
+			stack->iface[i].vdeconn = NULL;
+
+		for (i = 0; i < noif; i++) {
+			const char *ifvnl = vnlv[i];
+			char *delim = strstr(ifvnl, "://");  // position of "://"
+			char *colonmark = strchr(ifvnl, ':'); // position of ':'
+			if (colonmark && (!delim  || (delim && colonmark < delim))) {
+				/* spit ifname from vnl */
+				int ifnamelen = colonmark - ifvnl;
+				snprintf(stack->iface[i].ifname, IFNAMSIZ, "%.*s", ifnamelen, ifvnl);
+				ifvnl = colonmark + 1;
+			} else
+				snprintf(stack->iface[i].ifname, IFNAMSIZ, "vde%d", i);
+			//printf("open %s %s\n", stack->iface[i].ifname,  ifvnl);
+			if ((stack->iface[i].vdeconn = vde_open((char *) ifvnl, "ioth_vdestack", NULL)) == NULL)
+				goto err_vdenet;
+		}
 
 		stack->parentpid = getpid();
 		stack->pid = clone(childFunc, stack->child_stack + CHILD_STACK_SIZE,
@@ -147,6 +183,10 @@ struct vdestack *vde_addstack(char *vdenet, char *ifname) {
 	return stack;
 err_child:
 err_vdenet:
+	for (i = 0; i < noif; i++) {
+		if (stack->iface[i].vdeconn)
+			vde_close(stack->iface[i].vdeconn);
+	}
 	close(stack->cmdpipe[APPSIDE]);
 	close(stack->cmdpipe[DAEMONSIDE]);
 err_cmdpipe:
@@ -157,7 +197,12 @@ err_child_stack:
 }
 
 void vde_delstack(struct vdestack *stack) {
-	vde_close(stack->vdeconn);
+	int i;
+	int noif = stack->noif;
+	for (i = 0; i < noif; i++) {
+		if (stack->iface[i].vdeconn)
+			vde_close(stack->iface[i].vdeconn);
+	}
 	close(stack->cmdpipe[APPSIDE]);
 	waitpid(stack->pid, NULL, 0);
 	munmap(stack->child_stack, CHILD_STACK_SIZE);
@@ -180,8 +225,7 @@ static typeof(getstackdata_prototype) *getstackdata;
 
 void *ioth_vdestack_newstack(const char *vnlv[], const char *options,
 		struct ioth_functions *ioth_f) {
-	const char *vnl = (vnlv) ? vnlv[0] : NULL;
-	struct vdestack *stackdata = vde_addstack((char *) vnl, NULL);
+	struct vdestack *stackdata = vde_addstack(vnlv, options);
 	getstackdata = ioth_f->getstackdata;
 	ioth_f->close = close;
 	ioth_f->bind = bind;

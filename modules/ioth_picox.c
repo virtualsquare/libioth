@@ -23,9 +23,9 @@ static typeof(getstackdata_prototype) *getstackdata;
 
 static int picox_iplink_ifadd(struct picox *stackdata, const char *ifvnl) {
 	char *delim = strstr(ifvnl, "://");  // position of "://"
-	char *colonmark = strchr(ifvnl, ':'); // position of "="
-	/* if the patter is "ifname=vnl" i.e. "...=...://..." i
-		 or "...=..." (without "://" */
+	char *colonmark = strchr(ifvnl, ':'); // position of ':'
+	/* if the patter is "ifname:vnl" i.e. "...:...://..." i
+		 or "...:..." (without "://" */
 	if (colonmark && (!delim  || (delim && colonmark < delim))) {
 		/* spit ifname from vnl */
 		int ifnamelen = colonmark - ifvnl;
