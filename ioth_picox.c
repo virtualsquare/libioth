@@ -23,14 +23,14 @@ static typeof(getstackdata_prototype) *getstackdata;
 
 static int picox_iplink_ifadd(struct picox *stackdata, const char *ifvnl) {
 	char *delim = strstr(ifvnl, "://");  // position of "://"
-	char *equalsign = strchr(ifvnl, '='); // position of "="
+	char *colonmark = strchr(ifvnl, ':'); // position of "="
 	/* if the patter is "ifname=vnl" i.e. "...=...://..." i
 		 or "...=..." (without "://" */
-	if (equalsign && (!delim  || (delim && equalsign < delim))) {
+	if (colonmark && (!delim  || (delim && colonmark < delim))) {
 		/* spit ifname from vnl */
-		int ifnamelen = equalsign - ifvnl;
+		int ifnamelen = colonmark - ifvnl;
 		char ifname[ifnamelen + 1];
-		const char *ifacevnl = equalsign + 1;
+		const char *ifacevnl = colonmark + 1;
 		snprintf(ifname, ifnamelen + 1, "%.*s", ifnamelen, ifvnl);
 		picox_iplink_add(stackdata, ifname, -1, "vde", ifacevnl);
 	} else
