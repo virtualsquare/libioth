@@ -72,15 +72,10 @@ if (LIBPICOX_OK AND INCLUDEPICOX_OK)
 	install(FILES ${CMAKE_CURRENT_BINARY_DIR}/ioth_picox_n.so DESTINATION ${SYSTEM_IOTH_PATH})
 endif()
 
-add_executable(iothtest_server iothtest_server.c)
-target_link_libraries(iothtest_server ioth pthread)
-
-add_executable(iothtest_client iothtest_client.c)
-target_link_libraries(iothtest_client ioth pthread)
-
 # configure_file(picoxnet.pc.in picoxnet.pc @ONLY)
 configure_file(config.h.in config.h)
 
+add_subdirectory(test)
 # add_subdirectory(man)
 
 add_custom_target(uninstall
