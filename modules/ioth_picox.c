@@ -38,7 +38,8 @@ static int picox_iplink_ifadd(struct picox *stackdata, const char *ifvnl) {
 		picox_iplink_add(stackdata, NULL, -1, "vde", ifvnl);
 }
 
-void *ioth_picox_newstack(const char *vnlv[], struct ioth_functions *ioth_f) {
+void *ioth_picox_newstack(const char *vnlv[], const char *options,
+		struct ioth_functions *ioth_f) {
 	struct picox *stackdata = picox_newstack(NULL);
 	if (vnlv != NULL) {
 		int i;
@@ -95,7 +96,8 @@ int ioth_picox_fcntl(int fd, int cmd, ...) {
 	return picox_fcntl(fd, cmd, arg);
 }
 
-void *ioth_picox_n_newstack(const char *vnlv[], struct ioth_functions *ioth_f)
+void *ioth_picox_n_newstack(const char *vnlv[], const char *options,
+		struct ioth_functions *ioth_f)
   __attribute__ ((alias ("ioth_picox_newstack")));
 int ioth_picox_n_delstack(void *stackdata)
   __attribute__ ((alias ("ioth_picox_delstack")));

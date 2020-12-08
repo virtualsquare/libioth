@@ -47,7 +47,8 @@ NLINLINE_LIBMULTI(ioth_)
 /* ----------------------------------- for ioth plugins */
 
 struct ioth_functions;
-void *newstack_prototype(const char *vnlv[], struct ioth_functions *ioth_f);
+void *newstack_prototype(const char *vnlv[], const char *options,
+		struct ioth_functions *ioth_f);
 int delstack_prototype(void *stackdata);
 void *getstackdata_prototype(void);
 

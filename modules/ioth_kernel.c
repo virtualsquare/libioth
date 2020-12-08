@@ -16,7 +16,8 @@
 
 #include <libioth.h>
 
-void *ioth_kernel_newstack(const char *vnlv[], struct ioth_functions *ioth_f) {
+void *ioth_kernel_newstack(const char *vnlv[], const char *options,
+		struct ioth_functions *ioth_f) {
 	ioth_f->socket = socket;
 	ioth_f->close = close;
 	ioth_f->bind = bind;
@@ -43,5 +44,6 @@ void *ioth_kernel_newstack(const char *vnlv[], struct ioth_functions *ioth_f) {
 	return (void *) 42; // useless, but retval == NULL means error!
 }
 
-void *ioth_kernel_n_newstack(const char *vnlv[], struct ioth_functions *ioth_f)
+void *ioth_kernel_n_newstack(const char *vnlv[], const char *options,
+		struct ioth_functions *ioth_f)
 	__attribute__ ((alias ("ioth_kernel_newstack")));

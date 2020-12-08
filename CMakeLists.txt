@@ -12,8 +12,8 @@ include(CheckSymbolExists)
 # set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -D_FORTIFY_SOURCE=2 -O2 -pedantic -Wall -Wextra")
 set(SYSTEM_IOTH_PATH ${CMAKE_INSTALL_FULL_LIBDIR}/ioth)
 
-set(LIBS_REQUIRED fduserdata)
-set(HEADERS_REQUIRED nlinline+.h fduserdata.h)
+set(LIBS_REQUIRED fduserdata vdeplug)
+set(HEADERS_REQUIRED nlinline+.h fduserdata.h libvdeplug.h)
 set(CMAKE_REQUIRED_QUIET TRUE)
 
 foreach(THISLIB IN LISTS LIBS_REQUIRED)

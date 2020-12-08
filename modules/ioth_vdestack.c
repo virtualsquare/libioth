@@ -178,7 +178,8 @@ int vde_msocket(struct vdestack *stack, int domain, int type, int protocol) {
 
 static typeof(getstackdata_prototype) *getstackdata;
 
-void *ioth_vdestack_newstack(const char *vnlv[], struct ioth_functions *ioth_f) {
+void *ioth_vdestack_newstack(const char *vnlv[], const char *options,
+		struct ioth_functions *ioth_f) {
 	const char *vnl = (vnlv) ? vnlv[0] : NULL;
 	struct vdestack *stackdata = vde_addstack((char *) vnl, NULL);
 	getstackdata = ioth_f->getstackdata;
@@ -217,7 +218,8 @@ int ioth_vdestack_socket(int domain, int type, int protocol) {
 	return vde_msocket(stackdata, domain, type, protocol);
 }
 
-void *ioth_vdestack_n_newstack(const char *vnlv[], struct ioth_functions *ioth_f)
+void *ioth_vdestack_n_newstack(const char *vnlv[], const char *options,
+		struct ioth_functions *ioth_f)
   __attribute__ ((alias ("ioth_vdestack_newstack")));
 int ioth_vdestack_n_delstack(void *stackdata)
   __attribute__ ((alias ("ioth_vdestack_delstack")));

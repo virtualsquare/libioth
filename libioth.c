@@ -124,7 +124,8 @@ static void *ioth_dlsym(void *handle, const char *modname, const char *symbol) {
 }
 
 #define gotoerr(err, label) do {errno = err; goto label;} while(0)
-struct ioth *ioth_newstackv(const char *stack, const char *vnlv[]) {
+
+static struct ioth *_ioth_newstackv(const char *stack, const char *options, const char *vnlv[]) {
 	struct ioth *iothstack = calloc(1, sizeof(struct ioth));
 	if (iothstack == NULL)
 		gotoerr (ENOMEM, retNULL);
@@ -145,7 +146,7 @@ struct ioth *ioth_newstackv(const char *stack, const char *vnlv[]) {
 #pragma GCC diagnostic pop
 		if (iothstack->f.newstack == NULL)
 			gotoerr (ENOENT, errnoioth);
-		iothstack->stackdata = iothstack->f.newstack(vnlv, &iothstack->f);
+		iothstack->stackdata = iothstack->f.newstack(vnlv, options, &iothstack->f);
 		if (iothstack->stackdata == NULL)
 			goto errnoioth;
 	}
@@ -156,6 +157,18 @@ errdl:
 	free(iothstack);
 retNULL:
 	return NULL;
+}
+
+struct ioth *ioth_newstackv(const char *stack, const char *vnlv[]) {
+	char *options;
+	if (stack == NULL || (options = strchr(stack, ',')) == NULL)
+		return _ioth_newstackv(stack, "", vnlv);
+	else {
+		char stacklen = (++options) - stack;
+		char _stack[stacklen];
+		snprintf(_stack, stacklen, "%s", stack);
+		return _ioth_newstackv(_stack, options, vnlv);
+	}
 }
 
 int ioth_delstack(struct ioth *iothstack) {
