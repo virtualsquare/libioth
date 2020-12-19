@@ -34,12 +34,12 @@ add_definitions(-D_GNU_SOURCE)
 include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 include_directories(${CMAKE_CURRENT_BINARY_DIR})
 
-add_library(ioth SHARED libioth.c)
+add_library(ioth SHARED ioth.c)
 target_link_libraries(ioth -ldl -lfduserdata -lpthread)
 set_target_properties(ioth PROPERTIES VERSION ${PROJECT_VERSION}
     SOVERSION ${PROJECT_VERSION_MAJOR})
 install(TARGETS ioth DESTINATION ${CMAKE_INSTALL_LIBDIR})
-install(FILES libioth.h DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
+install(FILES ioth.h DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
 
 # configure_file(picoxnet.pc.in picoxnet.pc @ONLY)
 configure_file(config.h.in config.h)

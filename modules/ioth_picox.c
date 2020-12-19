@@ -14,7 +14,7 @@
  *
  */
 
-#include <libioth.h>
+#include <ioth.h>
 #include <picoxnet.h>
 #include <stdarg.h>
 NLINLINE_LIBMULTI(picox_)

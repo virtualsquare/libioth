@@ -25,7 +25,7 @@
 #include <netinet/in.h>
 #include <pthread.h>
 
-#include <libioth.h>
+#include <ioth.h>
 
 void *handle (void *arg) {
 	int connfd = (uintptr_t) arg;

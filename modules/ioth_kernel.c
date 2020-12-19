@@ -14,7 +14,7 @@
  *
  */
 
-#include <libioth.h>
+#include <ioth.h>
 
 void *ioth_kernel_newstack(const char *vnlv[], const char *options,
 		struct ioth_functions *ioth_f) {

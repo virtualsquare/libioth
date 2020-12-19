@@ -160,7 +160,7 @@ The structure of the source code a `ioth` plugin for the stack `foo` is the foll
 ```C
 file ioth_foo.c:
 
-#include <libioth.h>
+#include <ioth.h>
 
 static typeof(getstackdata_prototype) *getstackdata;
 

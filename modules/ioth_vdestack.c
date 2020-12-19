@@ -14,7 +14,7 @@
  *
  */
 
-#include <libioth.h>
+#include <ioth.h>
 #include <stdio.h>
 #include <vunet.h>
 #include <string.h>

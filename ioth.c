@@ -24,7 +24,7 @@
 #include <config.h>
 
 #include <fduserdata.h>
-#include <libioth.h>
+#include <ioth.h>
 
 static FDUSERDATA *fdtable;
 static __thread void *stackdata;
