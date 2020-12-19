@@ -94,15 +94,20 @@ This is the multi-stack supporting extension of `socket`(2). It behaves exactly 
 `netlink+` provides a set of inline functions for the stack interface/ip address and route
 configuration:
 ```C
-ioth_if_nametoindex(const char *ifname);
-ioth_linksetupdown(unsigned int ifindex, int updown);
-ioth_ipaddr_add(int family, void *addr, int prefixlen, unsigned int ifindex);
-ioth_ipaddr_del(int family, void *addr, int prefixlen, unsigned int ifindex);
-ioth_iproute_add(int family, void *dst_addr, int dst_prefixlen, void *gw_addr);
-ioth_iproute_del(int family, void *dst_addr, int dst_prefixlen, void *gw_addr);
-ioth_iplink_add(const char *ifname, unsigned int ifindex, const char *type,
+int ioth_if_nametoindex(const char *ifname);
+int ioth_linksetupdown(unsigned int ifindex, int updown);
+int ioth_ipaddr_add(int family, void *addr, int prefixlen, unsigned int ifindex);
+int ioth_ipaddr_del(int family, void *addr, int prefixlen, unsigned int ifindex);
+int ioth_iproute_add(int family, void *dst_addr, int dst_prefixlen, void *gw_addr,
+    unsigned int ifindex);
+int ioth_iproute_del(int family, void *dst_addr, int dst_prefixlen, void *gw_addr,
+    unsigned int ifindex);
+int ioth_iplink_add(const char *ifname, unsigned int ifindex, const char *type,
     const char *data);
-ioth_iplink_del(const char *ifname, unsigned int ifindex);
+int ioth_iplink_del(const char *ifname, unsigned int ifindex);
+int ioth_linksetaddr(unsigned int ifindex, void *macaddr);
+int ioth _linkgetaddr(unsigned int ifindex, void *macaddr);
+
 ```
 
 a detailed description can be found in `nlinline`(3).

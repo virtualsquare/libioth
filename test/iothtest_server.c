@@ -87,7 +87,7 @@ struct ioth *net_setup(const char **args) {
 				perror("link up");
 			if (ioth_ipaddr_add(mystack, AF_INET, ipv4addr, 24, ifindex) < 0)
 				perror("addr ipv4");
-			if (ioth_iproute_add(mystack, AF_INET, NULL, 0, ipv4gw) < 0)
+			if (ioth_iproute_add(mystack, AF_INET, NULL, 0, ipv4gw, 0) < 0)
 				perror("route ipv4");
 		}
 	}
