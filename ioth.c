@@ -189,19 +189,19 @@ int ioth_delstack(struct ioth *iothstack) {
 	return retval;
 }
 
-struct ioth *ioth_newstack(const char *stack) {
-	const char *vnlv[] = {(char *) NULL};
-	return ioth_newstackv(stack, vnlv);
-}
-
-struct ioth *ioth_newstacki(const char *stack, const char *vnl) {
-	const char *vnlv[] = {vnl, (char *) NULL};
-	return ioth_newstackv(stack, vnlv);
+struct ioth *ioth_newstack(const char *stack, const char *vnl) {
+	if (vnl == NULL) {
+		const char *vnlv[] = {(char *) NULL};
+		return ioth_newstackv(stack, vnlv);
+	} else {
+		const char *vnlv[] = {vnl, (char *) NULL};
+		return ioth_newstackv(stack, vnlv);
+	}
 }
 
 struct ioth *ioth_newstackl(const char *stack, const char *vnl, ... /* (char  *) NULL */) {
 	if (vnl == (char *) NULL)
-		return ioth_newstack(stack);
+		return ioth_newstack(stack, NULL);
 	else {
 		va_list ap;
 		int countargs;
@@ -500,9 +500,9 @@ __attribute__((destructor))
 
 /*
 	 int main() {
-//ioth_newstacki("picox", "vxvde://");
-//ioth_newstackl("picox", "vde://", NULL);
-//ioth_newstackl("picox", "vde://", "vxvde://234.0.0.0.1", "tap://tap0", NULL);
+//ioth_newstack("vdestack", "vxvde://");
+//ioth_newstackl("vdestack", "vde://", NULL);
+//ioth_newstackl("vdestack", "vde://", "vxvde://234.0.0.0.1", "tap://tap0", NULL);
 return 0;
 }*/
 

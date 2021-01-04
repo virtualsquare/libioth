@@ -37,8 +37,10 @@ int ioth_shutdown(int fd, int how);
 int ioth_ioctl(int fd, unsigned long cmd, void *argp);
 int ioth_fcntl(int fd, int cmd, long val);
 
-struct ioth *ioth_newstack(const char *stack);
-struct ioth *ioth_newstacki(const char *stack, const char *vnl);
+/* one interface (or no interfaces if vnl == NULL) */
+struct ioth *ioth_newstack(const char *stack, const char *vnl);
+
+/* up to several interfaces */
 struct ioth *ioth_newstackl(const char *stack, const char *vnl, ... /* (char  *) NULL */);
 struct ioth *ioth_newstackv(const char *stack, const char *vnlv[]);
 int ioth_delstack(struct ioth *iothstack);
