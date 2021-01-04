@@ -41,7 +41,6 @@ set_target_properties(ioth PROPERTIES VERSION ${PROJECT_VERSION}
 install(TARGETS ioth DESTINATION ${CMAKE_INSTALL_LIBDIR})
 install(FILES ioth.h DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
 
-# configure_file(picoxnet.pc.in picoxnet.pc @ONLY)
 configure_file(config.h.in config.h)
 
 add_subdirectory(test)

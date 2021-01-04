@@ -16,8 +16,6 @@ Pre-requisites: `fduserdata`, `nlinline`.
 
 The `ioth_vdestack` plugin is built only if `libvdestack` is installed.
 
-The `ioth_picox` plugin is built only when picoxnet (and picotcp) are installed.
-
 Libioth uses cmake. The standard building/installing procedure is:
 
 ```bash
@@ -137,7 +135,6 @@ Please note that `iothtest_client.c` uses a `poll`(2) system call to wait for av
 * in a second terminal run the server using one of the following commands:
 ```bash
      ./iothtest_server vdestack vde:///tmp/sw
-     ./iothtest_server picox vde:///tmp/sw
      vdens vde:// ./iothtest_server kernel
 ```
 
@@ -146,7 +143,6 @@ one of the following commands:
 
 ```bash
      ./iothtest_client vdestack vde:///tmp/sw
-     ./iothtest_client picox vde:///tmp/sw
      vdens vde:// ./iothtest_client kernel
 ```
 

@@ -12,15 +12,3 @@ install(TARGETS ioth_vdestack-r DESTINATION ${SYSTEM_IOTH_PATH})
 ADD_CUSTOM_TARGET(ioth_vdestack_n.so ALL DEPENDS ioth_vdestack-r
 	COMMAND ${CMAKE_COMMAND} -E create_symlink ioth_vdestack-r.so ioth_vdestack_n.so)
 install(FILES ${CMAKE_CURRENT_BINARY_DIR}/ioth_vdestack_n.so DESTINATION ${SYSTEM_IOTH_PATH})
-
-find_library(LIBPICOX_OK picoxnet)
-check_include_file("picoxnet.h" INCLUDEPICOX_OK)
-if (LIBPICOX_OK AND INCLUDEPICOX_OK)
-	add_library(ioth_picox-r SHARED ioth_picox.c)
-	set_target_properties(ioth_picox-r PROPERTIES PREFIX "")
-	target_link_libraries(ioth_picox-r picoxnet)
-	install(TARGETS ioth_picox-r DESTINATION ${SYSTEM_IOTH_PATH})
-	ADD_CUSTOM_TARGET(ioth_picox_n.so ALL DEPENDS ioth_picox-r
-			COMMAND ${CMAKE_COMMAND} -E create_symlink ioth_picox-r.so ioth_picox_n.so)
-	install(FILES ${CMAKE_CURRENT_BINARY_DIR}/ioth_picox_n.so DESTINATION ${SYSTEM_IOTH_PATH})
-endif()
