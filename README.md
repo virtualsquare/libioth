@@ -205,6 +205,9 @@ The plugin `ioth_foo.so` must be installed:
 * in the user local directory: the hidden subdirectory named `.ioth` of the user's home directory.
 
 When libioth is required to create a new stack of type `foo`, it loads the plugin named `ioth_foo.so`.
+If the plugin has a `-r` suffix in its name (e.g. `ioth_foo-r.so`) it means that the plugin is reentrant, 
+it is able to manage several stacks 
+concurrently in the same address space (otherwise `libioth` creates a new memory access space for each stack).
 
 When the plugin has been loaded, ioth searches and runs the function `ioth_foo_newstack` passing it two parameters: the array on VNLs to define the virtual interfaces, and a structure whose fields are function pointers: `ioth_functions`.
 This structure includes `getstackdata`, `newstack`, `delstack` and all the functions of the Berkeley Sockets API.
