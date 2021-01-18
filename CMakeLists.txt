@@ -12,8 +12,8 @@ include(CheckSymbolExists)
 # set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -D_FORTIFY_SOURCE=2 -O2 -pedantic -Wall -Wextra")
 set(SYSTEM_IOTH_PATH ${CMAKE_INSTALL_FULL_LIBDIR}/ioth)
 
-set(LIBS_REQUIRED fduserdata vdeplug)
-set(HEADERS_REQUIRED nlinline+.h fduserdata.h libvdeplug.h)
+set(LIBS_REQUIRED fduserdata vdeplug mhash)
+set(HEADERS_REQUIRED nlinline+.h fduserdata.h libvdeplug.h mhash.h)
 set(CMAKE_REQUIRED_QUIET TRUE)
 
 foreach(THISLIB IN LISTS LIBS_REQUIRED)
@@ -40,6 +40,13 @@ set_target_properties(ioth PROPERTIES VERSION ${PROJECT_VERSION}
     SOVERSION ${PROJECT_VERSION_MAJOR})
 install(TARGETS ioth DESTINATION ${CMAKE_INSTALL_LIBDIR})
 install(FILES ioth.h DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
+
+add_library(iothaddr SHARED iothaddr.c)
+target_link_libraries(iothaddr -lmhash)
+set_target_properties(iothaddr PROPERTIES VERSION ${PROJECT_VERSION}
+    SOVERSION ${PROJECT_VERSION_MAJOR})
+install(TARGETS iothaddr DESTINATION ${CMAKE_INSTALL_LIBDIR})
+install(FILES iothaddr.h DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
 
 configure_file(config.h.in config.h)
 

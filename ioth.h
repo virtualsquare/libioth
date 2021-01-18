@@ -1,5 +1,6 @@
 #ifndef LIBIOTH_H
 #define LIBIOTH_H
+#include <stdio.h>
 #include <sys/socket.h>
 #include <sys/ioctl.h>
 #include <sys/uio.h>
@@ -82,5 +83,32 @@ struct ioth_functions {
 	typeof(sendto) *sendto;
 	typeof(sendmsg) *sendmsg;
 };
-#endif
 
+/* ------------------ MAC address conversions --------------- */
+
+#define MAC_ADDRSTRLEN 18
+
+/* This  function converts a 6 byte MAC address family into a character string.
+	 The buffer dst must be at least MAC_ADDRSTRLEN bytes */
+static inline const char *ioth_ntomac(const void *src, char *dst, size_t size) {
+  const unsigned char *mac = src;
+  snprintf(dst, size, "%02x:%02x:%02x:%02x:%02x:%02x",
+      mac[0], mac[1], mac[2], mac[3], mac[4], mac[5]);
+  return dst;
+}
+
+/* This  function converts the character string src into a 6 byte MAC address.
+	 src points to a characteer string in the form "xx:xx:xx:xx:xx:xx" or
+	 "xx-xx-xx-xx-xx-xx" where xx is a sequence of two hexadecimal digits
+	 (not case sensitive) */
+static inline int ioth_macton(const char *src, void *dst) {
+  unsigned char *mac = dst;
+  if (sscanf(src, "%hhx:%hhx:%hhx:%hhx:%hhx:%hhx",
+      mac, mac + 1, mac + 2, mac + 3, mac + 4, mac + 5) != 6)
+    if (sscanf(src, "%hhx-%hhx-%hhx-%hhx-%hhx-%hhx",
+          mac, mac + 1, mac + 2, mac + 3, mac + 4, mac + 5) != 6)
+      return 0;
+  return 1;
+}
+
+#endif
