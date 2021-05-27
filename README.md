@@ -111,7 +111,7 @@ a detailed description can be found in `nlinline`(3).
 ## Example: an IPv4 TCP echo server
 
 The complete source code of this example is provided in this git repository:
-[`iothtest_server.c`](https://github.com/virtualsquare/libioth/blob/main/iothtest_server.c).
+[`iothtest_server.c`](https://github.com/virtualsquare/libioth/blob/master/test/iothtest_server.c).
 The code creates a virtual stack, activates the interface named `vde0`, sets the interface's address to 192.168.250.50/24 and runs a TCP echo server on port 5000.
 
 When a new connection begins, i.e. when `accept`(2) returns a new file descriptor,
@@ -120,7 +120,7 @@ When a new connection begins, i.e. when `accept`(2) returns a new file descripto
 ## Example: an IPv4 TCP terminal client
 
 The complete source code of this example is provided in this git repository:
-[`iothtest_client.c`](https://github.com/virtualsquare/libioth/blob/main/iothtest_client.c).
+[`iothtest_client.c`](https://github.com/virtualsquare/libioth/blob/master/test/iothtest_client.c).
 The code creates a virtual stack, activates the interface named `vde0`, sets the interface's address to 192.168.250.51/24 and runs a TCP terminal emulation client trying to get connected to 192.168.250.50 port 5000.
 
 Please note that `iothtest_client.c` uses a `poll`(2) system call to wait for available input on a ioth socket and on `stdin`.
@@ -167,7 +167,7 @@ void *ioth_foo_newstack(const char *vnlv[], struct ioth_functions *ioth_f) {
 
     // set the handler for all the functions
     // example 1: use the system call
-    ioth->bind = bind;
+    ioth_f->bind = bind;
 
     // example 2: provide a specific function (implicit assignment).
     // just name the function as ioth_foo_bind.
@@ -175,7 +175,7 @@ void *ioth_foo_newstack(const char *vnlv[], struct ioth_functions *ioth_f) {
     // ioth->bind = ioth_foo_bind;
 
     // example 2: provide a specific function (explicit assignment)
-    ioth->bind = mybind;
+    ioth_f->bind = mybind;
 
     .... and so on for all the other functions
      return stackdata;
@@ -207,7 +207,7 @@ The plugin `ioth_foo.so` must be installed:
 When libioth is required to create a new stack of type `foo`, it loads the plugin named `ioth_foo.so`.
 If the plugin has a `-r` suffix in its name (e.g. `ioth_foo-r.so`) it means that the plugin is reentrant, 
 it is able to manage several stacks 
-concurrently in the same address space (otherwise `libioth` creates a new memory access space for each stack).
+concurrently in the same address space (otherwise `libioth` creates a new memory address space for each stack).
 
 When the plugin has been loaded, ioth searches and runs the function `ioth_foo_newstack` passing it two parameters: the array on VNLs to define the virtual interfaces, and a structure whose fields are function pointers: `ioth_functions`.
 This structure includes `getstackdata`, `newstack`, `delstack` and all the functions of the Berkeley Sockets API.
