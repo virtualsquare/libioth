@@ -24,6 +24,7 @@
 #include <signal.h>
 #include <errno.h>
 #include <poll.h>
+#include <pthread.h>
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <sys/wait.h>
@@ -44,6 +45,7 @@ struct vdestack {
 	pid_t pid;
 	pid_t parentpid;
 	int noif;
+	pthread_mutex_t mutex;
 	int cmdpipe[2]; // socketpair for commands;
 	char *child_stack;
 	struct {
@@ -147,6 +149,8 @@ struct vdestack *vde_addstack(const char *vnlv[], const char *options) {
 	if (stack) {
 		//printf("noif %d\n",noif);
 		stack->noif = noif;
+		if (pthread_mutex_init(&stack->mutex, NULL) != 0)
+			goto err_mutex;
 		stack->child_stack =
 			mmap(0, CHILD_STACK_SIZE, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0);
 		if (stack->child_stack == NULL)
@@ -192,6 +196,8 @@ err_vdenet:
 err_cmdpipe:
 	munmap(stack->child_stack, CHILD_STACK_SIZE);
 err_child_stack:
+	pthread_mutex_destroy(&stack->mutex);
+err_mutex:
 	free(stack);
 	return NULL;
 }
@@ -206,6 +212,7 @@ void vde_delstack(struct vdestack *stack) {
 	close(stack->cmdpipe[APPSIDE]);
 	waitpid(stack->pid, NULL, 0);
 	munmap(stack->child_stack, CHILD_STACK_SIZE);
+	pthread_mutex_destroy(&stack->mutex);
 	free(stack);
 }
 
@@ -213,8 +220,10 @@ int vde_msocket(struct vdestack *stack, int domain, int type, int protocol) {
 	struct vdecmd cmd = {domain, type, protocol};
 	struct vdereply reply;
 
+	pthread_mutex_lock(&stack->mutex);
 	write(stack->cmdpipe[APPSIDE],  &cmd, sizeof(cmd));
 	read(stack->cmdpipe[APPSIDE], &reply, sizeof(reply));
+	pthread_mutex_unlock(&stack->mutex);
 
 	if (reply.rval < 0)
 		errno = reply.err;
