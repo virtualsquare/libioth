@@ -18,6 +18,8 @@
 
 void *ioth_kernel_newstack(const char *vnlv[], const char *options,
 		struct ioth_functions *ioth_f) {
+	(void) vnlv;
+	(void) options;
 	ioth_f->socket = socket;
 	ioth_f->close = close;
 	ioth_f->bind = bind;

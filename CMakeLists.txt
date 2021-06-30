@@ -9,7 +9,7 @@ include(GNUInstallDirs)
 include(CheckIncludeFile)
 include(CheckSymbolExists)
 
-# set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -D_FORTIFY_SOURCE=2 -O2 -pedantic -Wall -Wextra")
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -D_FORTIFY_SOURCE=2 -O2 -pedantic -Wall -Wextra")
 set(SYSTEM_IOTH_PATH ${CMAKE_INSTALL_FULL_LIBDIR}/ioth)
 
 set(LIBS_REQUIRED fduserdata vdeplug mhash)

@@ -46,7 +46,6 @@ void *handle (void *arg) {
 void server(struct ioth *mystack) {
 	struct sockaddr_in servaddr;
 	int fd, connfd;
-	char buf[BUFSIZ];
 
 	fd = ioth_msocket(mystack, AF_INET, SOCK_STREAM, 0);
 

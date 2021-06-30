@@ -87,6 +87,7 @@ static int childFunc(void *arg)
 	int noif = stack->noif;
 	struct pollfd pfd[noif * 2 + 1];
 	int i;
+	ssize_t unused;
 	for (i = 0; i < noif; i++) {
     pfd[i].fd = vde_datafd(stack->iface[i].vdeconn);
     pfd[i + noif].fd = open_tap(stack->iface[i].ifname);
@@ -108,7 +109,7 @@ static int childFunc(void *arg)
 			if ((n = read(stack->cmdpipe[DAEMONSIDE], &cmd, sizeof(cmd))) > 0) {
 				reply.rval = socket(cmd.domain, cmd.type, cmd.protocol);
 				reply.err = errno;
-				write(stack->cmdpipe[DAEMONSIDE], &reply, sizeof(reply));
+				unused = write(stack->cmdpipe[DAEMONSIDE], &reply, sizeof(reply));
 			} else
 				break;
 		}
@@ -121,9 +122,10 @@ static int childFunc(void *arg)
 			if (pfd[i].revents & POLLIN) {
 				n = vde_recv(stack->iface[i].vdeconn, buf, VDE_ETHBUFSIZE, 0);
 				if (n <= 0) break;
-				write(pfd[i + noif].fd, buf, n);
+				unused = write(pfd[i + noif].fd, buf, n);
 			}
 		}
+		(void) unused;
 		//printf("poll out\n");
 	}
 	for (i = 0; i < noif; i++) {
@@ -143,6 +145,7 @@ static int countif(const char **v) {
 }
 
 struct vdestack *vde_addstack(const char *vnlv[], const char *options) {
+	(void) options;
 	int i;
 	int noif = countif(vnlv);
 	struct vdestack *stack = malloc(sizeof(*stack) + sizeof(stack->iface[0]) * noif);
@@ -221,13 +224,17 @@ int vde_msocket(struct vdestack *stack, int domain, int type, int protocol) {
 	struct vdereply reply;
 
 	pthread_mutex_lock(&stack->mutex);
-	write(stack->cmdpipe[APPSIDE],  &cmd, sizeof(cmd));
-	read(stack->cmdpipe[APPSIDE], &reply, sizeof(reply));
+	if (write(stack->cmdpipe[APPSIDE],  &cmd, sizeof(cmd)) < 0 ||
+			read(stack->cmdpipe[APPSIDE], &reply, sizeof(reply)) < 0)
+		goto err;
 	pthread_mutex_unlock(&stack->mutex);
 
 	if (reply.rval < 0)
 		errno = reply.err;
 	return reply.rval;
+err:
+	pthread_mutex_unlock(&stack->mutex);
+	return -1;
 }
 
 static typeof(getstackdata_prototype) *getstackdata;

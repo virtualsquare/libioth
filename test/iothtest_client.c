@@ -46,9 +46,9 @@ void *handle (void *arg) {
 
 void client(struct ioth *mystack) {
 	struct sockaddr_in servaddr;
-	int fd, connfd;
-	char buf[BUFSIZ];
+	int fd;
 	size_t n;
+	char buf[BUFSIZ];
 
 	fd = ioth_msocket(mystack, AF_INET, SOCK_STREAM, 0);
 
@@ -58,18 +58,18 @@ void client(struct ioth *mystack) {
 	inet_pton(AF_INET, "192.168.250.50", &servaddr.sin_addr);
 
 	if (ioth_connect(fd, (struct sockaddr *)&servaddr, sizeof(servaddr)) >= 0) {
-		struct pollfd pfd[]={ {0, POLLIN, 0}, {fd, POLLIN, 0} };
+		struct pollfd pfd[]={ {STDIN_FILENO, POLLIN, 0}, {fd, POLLIN, 0} };
 		for (;;) {
 			poll(pfd, 2, -1);
 			if (pfd[0].revents) {
-				n = read(0, buf, 1024);
+				n = read(STDIN_FILENO, buf, 1024);
 				if (n==0) break;
 				ioth_write(fd, buf,n);
 			}
 			if (pfd[1].revents) {
 				n = ioth_read(fd, buf, 1024);
 				if (n==0) break;
-				write(1, buf,n);
+				n = write(STDOUT_FILENO, buf, n);
 			}
 		}
 	}

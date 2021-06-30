@@ -55,18 +55,29 @@ void *newstack_prototype(const char *vnlv[], const char *options,
 int delstack_prototype(void *stackdata);
 void *getstackdata_prototype(void);
 
+int bind_prototype(int sockfd, const struct sockaddr *addr, socklen_t addrlen);
+int accept_prototype(int sockfd, struct sockaddr *addr, socklen_t *addrlen);
+int connect_prototype(int sockfd, const struct sockaddr *addr, socklen_t addrlen);
+ssize_t recvfrom_prototype(int sockfd, void *buf, size_t len, int flags,
+                        struct sockaddr *src_addr, socklen_t *addrlen);
+ssize_t sendto_prototype(int sockfd, const void *buf, size_t len, int flags,
+                      const struct sockaddr *dest_addr, socklen_t addrlen);
+int getsockname_prototype(int sockfd, struct sockaddr *addr, socklen_t *addrlen);
+int getpeername_prototype(int sockfd, struct sockaddr *addr, socklen_t *addrlen);
+
+
 struct ioth_functions {
 	typeof(getstackdata_prototype) *getstackdata;
 	typeof(newstack_prototype) *newstack;
 	typeof(delstack_prototype) *delstack;
 	typeof(socket) *socket;
 	typeof(close) *close;
-	typeof(bind) *bind;
-	typeof(connect) *connect;
+	typeof(bind_prototype) *bind;
+	typeof(connect_prototype) *connect;
 	typeof(listen) *listen;
-	typeof(accept) *accept;
-	typeof(getsockname) *getsockname;
-	typeof(getpeername) *getpeername;
+	typeof(accept_prototype) *accept;
+	typeof(getsockname_prototype) *getsockname;
+	typeof(getpeername_prototype) *getpeername;
 	typeof(setsockopt) *setsockopt;
 	typeof(getsockopt) *getsockopt;
 	typeof(shutdown) *shutdown;
@@ -75,12 +86,12 @@ struct ioth_functions {
 	typeof(read) *read;
 	typeof(readv) *readv;
 	typeof(recv) *recv;
-	typeof(recvfrom) *recvfrom;
+	typeof(recvfrom_prototype) *recvfrom;
 	typeof(recvmsg) *recvmsg;
 	typeof(write) *write;
 	typeof(writev) *writev;
 	typeof(send) *send;
-	typeof(sendto) *sendto;
+	typeof(sendto_prototype) *sendto;
 	typeof(sendmsg) *sendmsg;
 };
 
