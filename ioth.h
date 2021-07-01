@@ -55,6 +55,10 @@ void *newstack_prototype(const char *vnlv[], const char *options,
 int delstack_prototype(void *stackdata);
 void *getstackdata_prototype(void);
 
+#ifdef _GNU_SOURCE
+/* libc + _GNU_SOURCE uses a transparent union for sockaddr
+ * (__SOCKADDR_ARG __CONST_SOCKADDR_ARG)
+ * Unfortunately this choice generates warnings for gcc in pedantic mode */
 int bind_prototype(int sockfd, const struct sockaddr *addr, socklen_t addrlen);
 int accept_prototype(int sockfd, struct sockaddr *addr, socklen_t *addrlen);
 int connect_prototype(int sockfd, const struct sockaddr *addr, socklen_t addrlen);
@@ -64,7 +68,15 @@ ssize_t sendto_prototype(int sockfd, const void *buf, size_t len, int flags,
                       const struct sockaddr *dest_addr, socklen_t addrlen);
 int getsockname_prototype(int sockfd, struct sockaddr *addr, socklen_t *addrlen);
 int getpeername_prototype(int sockfd, struct sockaddr *addr, socklen_t *addrlen);
-
+#else
+#define bind_prototype bind
+#define accept_prototype accept
+#define connect_prototype connect
+#define recvfrom_prototype recvfrom
+#define sendto_prototype sendto
+#define getsockname_prototype getsockname
+#define getpeername_prototype getpeername
+#endif
 
 struct ioth_functions {
 	typeof(getstackdata_prototype) *getstackdata;
