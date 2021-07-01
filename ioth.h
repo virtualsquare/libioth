@@ -55,28 +55,12 @@ void *newstack_prototype(const char *vnlv[], const char *options,
 int delstack_prototype(void *stackdata);
 void *getstackdata_prototype(void);
 
-#ifdef _GNU_SOURCE
 /* libc + _GNU_SOURCE uses a transparent union for sockaddr
  * (__SOCKADDR_ARG __CONST_SOCKADDR_ARG)
- * Unfortunately this choice generates warnings for gcc in pedantic mode */
-int bind_prototype(int sockfd, const struct sockaddr *addr, socklen_t addrlen);
-int accept_prototype(int sockfd, struct sockaddr *addr, socklen_t *addrlen);
-int connect_prototype(int sockfd, const struct sockaddr *addr, socklen_t addrlen);
-ssize_t recvfrom_prototype(int sockfd, void *buf, size_t len, int flags,
-                        struct sockaddr *src_addr, socklen_t *addrlen);
-ssize_t sendto_prototype(int sockfd, const void *buf, size_t len, int flags,
-                      const struct sockaddr *dest_addr, socklen_t addrlen);
-int getsockname_prototype(int sockfd, struct sockaddr *addr, socklen_t *addrlen);
-int getpeername_prototype(int sockfd, struct sockaddr *addr, socklen_t *addrlen);
-#else
-#define bind_prototype bind
-#define accept_prototype accept
-#define connect_prototype connect
-#define recvfrom_prototype recvfrom
-#define sendto_prototype sendto
-#define getsockname_prototype getsockname
-#define getpeername_prototype getpeername
-#endif
+ * Unfortunately this choice generates warnings for gcc in pedantic mode.
+ * so ioth_X is used instead of X as protoype for all X in Berkeley
+ * sockets API using sockaddr.
+ */
 
 struct ioth_functions {
 	typeof(getstackdata_prototype) *getstackdata;
@@ -84,12 +68,12 @@ struct ioth_functions {
 	typeof(delstack_prototype) *delstack;
 	typeof(socket) *socket;
 	typeof(close) *close;
-	typeof(bind_prototype) *bind;
-	typeof(connect_prototype) *connect;
+	typeof(ioth_bind) *bind;
+	typeof(ioth_connect) *connect;
 	typeof(listen) *listen;
-	typeof(accept_prototype) *accept;
-	typeof(getsockname_prototype) *getsockname;
-	typeof(getpeername_prototype) *getpeername;
+	typeof(ioth_accept) *accept;
+	typeof(ioth_getsockname) *getsockname;
+	typeof(ioth_getpeername) *getpeername;
 	typeof(setsockopt) *setsockopt;
 	typeof(getsockopt) *getsockopt;
 	typeof(shutdown) *shutdown;
@@ -98,12 +82,12 @@ struct ioth_functions {
 	typeof(read) *read;
 	typeof(readv) *readv;
 	typeof(recv) *recv;
-	typeof(recvfrom_prototype) *recvfrom;
+	typeof(ioth_recvfrom) *recvfrom;
 	typeof(recvmsg) *recvmsg;
 	typeof(write) *write;
 	typeof(writev) *writev;
 	typeof(send) *send;
-	typeof(sendto_prototype) *sendto;
+	typeof(ioth_sendto) *sendto;
 	typeof(sendmsg) *sendmsg;
 };
 

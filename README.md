@@ -41,7 +41,8 @@ struct ioth *ioth_newstack(const char *stack, const char *vnl);
 struct ioth *ioth_newstackl(const char *stack, const char *vnl, ... /* (char  *) NULL */);
 struct ioth *ioth_newstackv(const char *stack, const char *vnlv[]);
 ```
-* `ioth_newstack` creates a new stack without any interface if `vnl` is NULL, otherwise the new stack has a virtual interface connected to the vde network identified by the VNL (Virtual Network Locator, see vdeplug4).
+* `ioth_newstack` creates a new stack without any interface if `vnl` is NULL, otherwise the new stack has a virtual interface connected to the vde network identified by the VNL (Virtual Network Locator, see
+[vdeplug4](https://github.com/rd235/vdeplug4) ).
 * `ioth_newstackl` and `ioth_newstackv` (l = list, v = vector) support the creation of a new stack with several interfaces. It is possible to provide the VNLs as a sequence of arguments (as in execl) or as a NULL terminated array of VNLs (as the arguments in execv).
 
 The return value is the ioth stack descriptor, NULL in case of error (errno provides the caller with a more detailed description of the error).
@@ -54,6 +55,7 @@ int ioth_delstack(struct ioth *iothstack);
 This function terminates/deletes a stack. It returns -1 in case of error, 0 otherwise. If there are file descriptors already in use, this function fails and errno is EBUSY.
 
 ### msocket
+
 ```C
 int ioth_msocket(struct ioth *iothstack, int domain, int type, int protocol);
 ```
@@ -87,8 +89,8 @@ This is the multi-stack supporting extension of `socket`(2). It behaves exactly 
 
 ### extra features for free: nlinline netlink configuration functions
 
-`netlink+` provides a set of inline functions for the stack interface/ip address and route
-configuration:
+[`nlinline+`](https://github.com/virtualsquare/nlinline) provides a set of inline functions
+for the stack interface/ip address and route configuration:
 ```C
 int ioth_if_nametoindex(const char *ifname);
 int ioth_linksetupdown(unsigned int ifindex, int updown);
@@ -205,8 +207,8 @@ The plugin `ioth_foo.so` must be installed:
 * in the user local directory: the hidden subdirectory named `.ioth` of the user's home directory.
 
 When libioth is required to create a new stack of type `foo`, it loads the plugin named `ioth_foo.so`.
-If the plugin has a `-r` suffix in its name (e.g. `ioth_foo-r.so`) it means that the plugin is reentrant, 
-it is able to manage several stacks 
+If the plugin has a `-r` suffix in its name (e.g. `ioth_foo-r.so`) it means that the plugin is reentrant,
+it is able to manage several stacks
 concurrently in the same address space (otherwise `libioth` creates a new memory address space for each stack).
 
 When the plugin has been loaded, ioth searches and runs the function `ioth_foo_newstack` passing it two parameters: the array on VNLs to define the virtual interfaces, and a structure whose fields are function pointers: `ioth_functions`.
