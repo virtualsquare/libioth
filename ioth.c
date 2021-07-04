@@ -171,24 +171,6 @@ struct ioth *ioth_newstackv(const char *stack, const char *vnlv[]) {
 	}
 }
 
-int ioth_delstack(struct ioth *iothstack) {
-	int retval;
-	if (iothstack == NULL)
-		return errno = EINVAL, -1;
-	if (iothstack->count > 0)
-		return errno = EBUSY, -1;
-	if (iothstack->f.delstack == NULL)
-		retval = 0;
-	else
-		retval = iothstack->f.delstack(iothstack->stackdata);
-	if (retval == 0) {
-		if (iothstack->handle != NULL)
-			dlclose(iothstack->handle);
-		free(iothstack);
-	}
-	return retval;
-}
-
 struct ioth *ioth_newstack(const char *stack, const char *vnl) {
 	if (vnl == NULL) {
 		const char *vnlv[] = {(char *) NULL};
@@ -221,14 +203,22 @@ struct ioth *ioth_newstackl(const char *stack, const char *vnl, ... /* (char  *)
 	}
 }
 
-static inline struct ioth *ioth_getstack(int fd) {
-	struct ioth **ioth = fduserdata_get(fdtable, fd);
-	if (ioth == NULL)
-		return NULL;
-	struct ioth *iothstack = *ioth;
-	fduserdata_put(ioth);
-	stackdata = iothstack->stackdata;
-	return iothstack;
+int ioth_delstack(struct ioth *iothstack) {
+	int retval;
+	if (iothstack == NULL)
+		return errno = EINVAL, -1;
+	if (iothstack->count > 0)
+		return errno = EBUSY, -1;
+	if (iothstack->f.delstack == NULL)
+		retval = 0;
+	else
+		retval = iothstack->f.delstack(iothstack->stackdata);
+	if (retval == 0) {
+		if (iothstack->handle != NULL)
+			dlclose(iothstack->handle);
+		free(iothstack);
+	}
+	return retval;
 }
 
 int ioth_msocket(struct ioth *iothstack, int domain, int type, int protocol) {
@@ -250,12 +240,42 @@ int ioth_msocket(struct ioth *iothstack, int domain, int type, int protocol) {
 	return fd;
 }
 
+/* get the ioth stack from fduserdata */
+static inline struct ioth *ioth_getstack(int fd) {
+	struct ioth **ioth = fduserdata_get(fdtable, fd);
+	if (ioth == NULL)
+		return NULL;
+	struct ioth *iothstack = *ioth;
+	fduserdata_put(ioth);
+	stackdata = iothstack->stackdata;
+	return iothstack;
+}
+
+/* get the ioth stack from fduserdata assign it to "iothstack"
+ * and check if fun exists */
 #define IOTH_getiothstack_ck(fd, fun) \
 	struct ioth *iothstack = ioth_getstack(fd); \
 	if (iothstack == NULL) \
 	return errno = EBADF, -1; \
 	if (iothstack->f.fun == NULL) \
 	return errno = ENOSYS, -1
+
+/* get the ioth stack from fduserdata assign it to "iothstack"
+ * do not check if fun exists and call _ioth_xxx where xxx is fun stringified.
+ * e.g. "IOTH_stackfun(fd, read)" calls _ioth_read.
+ * This maxro has been designed as a prefix to the arguments of the called function */
+#define IOTH_stackfun(fd, fun) \
+	struct ioth *iothstack = ioth_getstack(fd); \
+	if (iothstack == NULL) \
+	return errno = EBADF, -1; \
+	return _ioth_ ## fun
+
+/* get the ioth stack from fduserdata assign it to "iothstack"
+ * check if fun exists and call the implementation of fun provided by the stack.
+ * This maxro has been designed as a prefix to the arguments of the called function */
+#define IOTH_fwfun(fd, fun) \
+	IOTH_getiothstack_ck(fd, fun); \
+	return iothstack->f.fun
 
 int ioth_close(int fd) {
 	int retval;
@@ -396,12 +416,6 @@ ssize_t _ioth_sendmsg(struct ioth *iothstack, int fd, const struct msghdr *msg, 
 		return errno = ENOSYS, -1;
 }
 
-#define IOTH_stackfun(fd, fun) \
-	struct ioth *iothstack = ioth_getstack(fd); \
-	if (iothstack == NULL) \
-	return errno = EBADF, -1; \
-	return _ioth_ ## fun
-
 ssize_t ioth_read(int fd, void *buf, size_t len) {
 	IOTH_stackfun(fd, read) (iothstack, fd, buf, len);
 }
@@ -443,10 +457,6 @@ ssize_t ioth_sendto(int fd, const void *buf, size_t len, int flags,
 ssize_t ioth_sendmsg(int fd, const struct msghdr *msg, int flags) {
 	IOTH_stackfun(fd, sendmsg) (iothstack, fd, msg, flags);
 }
-
-#define IOTH_fwfun(fd, fun) \
-	IOTH_getiothstack_ck(fd, fun); \
-	return iothstack->f.fun
 
 int ioth_bind(int fd, const struct sockaddr *addr, socklen_t addrlen) {
 	IOTH_fwfun(fd, bind) (fd, addr, addrlen);
