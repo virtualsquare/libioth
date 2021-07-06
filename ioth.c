@@ -65,11 +65,13 @@ struct ioth {
 	struct ioth_functions f;
 };
 
-static struct ioth default_iothstack = {
+static struct ioth native_iothstack = {
 #define __MACROFUN(X) .f.X = X,
 	FOREACHFUN
 #undef __MACROFUN
 };
+
+static struct ioth *default_iothstack = &native_iothstack;
 
 static void *getstackdata(void) {
 	return stackdata;
@@ -79,6 +81,7 @@ static void *getstackdata(void) {
 #ifndef USER_IOTH_PATH
 #define USER_IOTH_PATH "/.ioth"
 #endif
+/* this whould be defind by cmake in config.h */
 #ifndef SYSTEM_IOTH_PATH
 #define SYSTEM_IOTH_PATH "/usr/local/lib/ioth"
 #endif
@@ -130,7 +133,7 @@ static struct ioth *_ioth_newstackv(const char *stack, const char *options, cons
 	if (iothstack == NULL)
 		gotoerr (ENOMEM, retNULL);
 	if (stack == NULL || *stack == '\0') {
-		*iothstack = default_iothstack;
+		*iothstack = native_iothstack;
 		iothstack->count = 0;
 	} else {
 		iothstack->handle = ioth_dlopen(stack, RTLD_NOW);
@@ -221,10 +224,21 @@ int ioth_delstack(struct ioth *iothstack) {
 	return retval;
 }
 
+void ioth_set_defstack(struct ioth *iothstack) {
+	if (iothstack == NULL)
+		default_iothstack = &native_iothstack;
+	else
+		default_iothstack = iothstack;
+}
+
+struct ioth *ioth_get_defstack(void) {
+	return default_iothstack;
+}
+
 int ioth_msocket(struct ioth *iothstack, int domain, int type, int protocol) {
 	int fd;
 	if (iothstack == NULL)
-		iothstack = &default_iothstack;
+		iothstack = default_iothstack;
 	iothstack->count++;
 	stackdata = iothstack->stackdata;
 	if (iothstack->f.socket == NULL)
@@ -238,6 +252,10 @@ int ioth_msocket(struct ioth *iothstack, int domain, int type, int protocol) {
 		fduserdata_put(ioth);
 	}
 	return fd;
+}
+
+int ioth_socket(int domain, int type, int protocol) {
+	return ioth_msocket(NULL, domain, type, protocol);
 }
 
 /* get the ioth stack from fduserdata */

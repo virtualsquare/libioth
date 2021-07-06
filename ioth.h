@@ -11,7 +11,22 @@
 
 struct ioth;
 
+/* ioth stack create/destroy */
+
+/* one interface (or no interfaces if vnl == NULL) */
+struct ioth *ioth_newstack(const char *stack, const char *vnl);
+
+/* up to several interfaces */
+struct ioth *ioth_newstackl(const char *stack, const char *vnl, ... /* (char  *) NULL */);
+struct ioth *ioth_newstackv(const char *stack, const char *vnlv[]);
+int ioth_delstack(struct ioth *iothstack);
+
+void ioth_set_defstack(struct ioth *iothstack);
+struct ioth *ioth_get_defstack(void);
+
+/* communication primitives */
 int ioth_msocket(struct ioth *iothstack, int domain, int type, int protocol);
+int ioth_socket(int domain, int type, int protocol);
 int ioth_close(int fd);
 
 int ioth_bind(int fd, const struct sockaddr *addr, socklen_t addrlen);
@@ -37,14 +52,6 @@ int ioth_getsockopt(int fd, int level, int optname, void *optval, socklen_t *opt
 int ioth_shutdown(int fd, int how);
 int ioth_ioctl(int fd, unsigned long cmd, void *argp);
 int ioth_fcntl(int fd, int cmd, long val);
-
-/* one interface (or no interfaces if vnl == NULL) */
-struct ioth *ioth_newstack(const char *stack, const char *vnl);
-
-/* up to several interfaces */
-struct ioth *ioth_newstackl(const char *stack, const char *vnl, ... /* (char  *) NULL */);
-struct ioth *ioth_newstackv(const char *stack, const char *vnlv[]);
-int ioth_delstack(struct ioth *iothstack);
 
 NLINLINE_LIBMULTI(ioth_)
 /* ----------------------------------- for ioth plugins */
