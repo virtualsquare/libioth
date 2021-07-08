@@ -326,17 +326,17 @@ int ioth_accept(int fd, struct sockaddr *addr, socklen_t *addrlen) {
 }
 
 static ssize_t _ioth_read(struct ioth *iothstack, int fd, void *buf, size_t len);
-ssize_t _ioth_readv(struct ioth *iothstack, int fd, const struct iovec *iov, int iovcnt);
-ssize_t _ioth_recv(struct ioth *iothstack, int fd, void *buf, size_t len, int flags);
-ssize_t _ioth_recvfrom(struct ioth *iothstack, int fd, void *buf, size_t len, int flags,
+static ssize_t _ioth_readv(struct ioth *iothstack, int fd, const struct iovec *iov, int iovcnt);
+static ssize_t _ioth_recv(struct ioth *iothstack, int fd, void *buf, size_t len, int flags);
+static ssize_t _ioth_recvfrom(struct ioth *iothstack, int fd, void *buf, size_t len, int flags,
 		struct sockaddr *from, socklen_t *fromlen);
-ssize_t _ioth_recvmsg(struct ioth *iothstack, int fd, struct msghdr *msg, int flags);
-ssize_t _ioth_write(struct ioth *iothstack, int fd, const void *buf, size_t size);
-ssize_t _ioth_writev(struct ioth *iothstack, int fd, const struct iovec *iov, int iovcnt);
-ssize_t _ioth_send(struct ioth *iothstack, int fd, const void *buf, size_t size, int flags);
-ssize_t _ioth_sendto(struct ioth *iothstack, int fd, const void *buf, size_t size, int flags,
+static ssize_t _ioth_recvmsg(struct ioth *iothstack, int fd, struct msghdr *msg, int flags);
+static ssize_t _ioth_write(struct ioth *iothstack, int fd, const void *buf, size_t size);
+static ssize_t _ioth_writev(struct ioth *iothstack, int fd, const struct iovec *iov, int iovcnt);
+static ssize_t _ioth_send(struct ioth *iothstack, int fd, const void *buf, size_t size, int flags);
+static ssize_t _ioth_sendto(struct ioth *iothstack, int fd, const void *buf, size_t size, int flags,
 		const struct sockaddr *to, socklen_t tolen);
-ssize_t _ioth_sendmsg(struct ioth *iothstack, int fd, const struct msghdr *msg, int flags);
+static ssize_t _ioth_sendmsg(struct ioth *iothstack, int fd, const struct msghdr *msg, int flags);
 
 static ssize_t _ioth_read(struct ioth *iothstack, int fd, void *buf, size_t len) {
 	if (iothstack->f.read)
@@ -345,7 +345,7 @@ static ssize_t _ioth_read(struct ioth *iothstack, int fd, void *buf, size_t len)
 		return _ioth_recv(iothstack, fd, buf, len, 0);
 }
 
-ssize_t _ioth_readv(struct ioth *iothstack, int fd, const struct iovec *iov, int iovcnt) {
+static ssize_t _ioth_readv(struct ioth *iothstack, int fd, const struct iovec *iov, int iovcnt) {
 	if (iothstack->f.readv)
 		return iothstack->f.readv(fd, iov, iovcnt);
 	else if (iothstack->f.recvmsg) {
@@ -355,14 +355,14 @@ ssize_t _ioth_readv(struct ioth *iothstack, int fd, const struct iovec *iov, int
 		return errno = ENOSYS, -1;
 }
 
-ssize_t _ioth_recv(struct ioth *iothstack, int fd, void *buf, size_t len, int flags) {
+static ssize_t _ioth_recv(struct ioth *iothstack, int fd, void *buf, size_t len, int flags) {
 	if (iothstack->f.recv)
 		return iothstack->f.recv(fd, buf, len, flags);
 	else
 		return _ioth_recvfrom(iothstack, fd, buf, len, flags, NULL, NULL);
 }
 
-ssize_t _ioth_recvfrom(struct ioth *iothstack, int fd, void *buf, size_t len, int flags,
+static ssize_t _ioth_recvfrom(struct ioth *iothstack, int fd, void *buf, size_t len, int flags,
 		struct sockaddr *from, socklen_t *fromlen) {
 	if (iothstack->f.recvfrom)
 		return iothstack->f.recvfrom( fd, buf, len, flags, from, fromlen);
@@ -380,21 +380,21 @@ ssize_t _ioth_recvfrom(struct ioth *iothstack, int fd, void *buf, size_t len, in
 		return errno = ENOSYS, -1;
 }
 
-ssize_t _ioth_recvmsg(struct ioth *iothstack, int fd, struct msghdr *msg, int flags) {
+static ssize_t _ioth_recvmsg(struct ioth *iothstack, int fd, struct msghdr *msg, int flags) {
 	if (iothstack->f.recvmsg) {
 		return iothstack->f.recvmsg(fd, msg, flags);
 	} else
 		return errno = ENOSYS, -1;
 }
 
-ssize_t _ioth_write(struct ioth *iothstack, int fd, const void *buf, size_t len) {
+static ssize_t _ioth_write(struct ioth *iothstack, int fd, const void *buf, size_t len) {
 	if (iothstack->f.write)
 		return iothstack->f.write(fd, buf, len);
 	else
 		return _ioth_send(iothstack, fd, buf, len, 0);
 }
 
-ssize_t _ioth_writev(struct ioth *iothstack, int fd, const struct iovec *iov, int iovcnt) {
+static ssize_t _ioth_writev(struct ioth *iothstack, int fd, const struct iovec *iov, int iovcnt) {
 	if (iothstack->f.writev)
 		return iothstack->f.writev(fd, iov, iovcnt);
 	else if (iothstack->f.sendmsg) {
@@ -404,14 +404,14 @@ ssize_t _ioth_writev(struct ioth *iothstack, int fd, const struct iovec *iov, in
 		return errno = ENOSYS, -1;
 }
 
-ssize_t _ioth_send(struct ioth *iothstack, int fd, const void *buf, size_t len, int flags) {
+static ssize_t _ioth_send(struct ioth *iothstack, int fd, const void *buf, size_t len, int flags) {
 	if (iothstack->f.send)
 		return iothstack->f.send(fd, buf, len, flags);
 	else
 		return _ioth_sendto(iothstack, fd, buf, len, flags, NULL, 0);
 }
 
-ssize_t _ioth_sendto(struct ioth *iothstack, int fd, const void *buf, size_t len, int flags,
+static ssize_t _ioth_sendto(struct ioth *iothstack, int fd, const void *buf, size_t len, int flags,
 		const struct sockaddr *to, socklen_t tolen) {
 	if (iothstack->f.sendto)
 		return iothstack->f.sendto( fd, buf, len, flags, to, tolen);
@@ -427,7 +427,7 @@ ssize_t _ioth_sendto(struct ioth *iothstack, int fd, const void *buf, size_t len
 		return errno = ENOSYS, -1;
 }
 
-ssize_t _ioth_sendmsg(struct ioth *iothstack, int fd, const struct msghdr *msg, int flags) {
+static ssize_t _ioth_sendmsg(struct ioth *iothstack, int fd, const struct msghdr *msg, int flags) {
 	if (iothstack->f.sendmsg) {
 		return iothstack->f.sendmsg(fd, msg, flags);
 	} else
@@ -525,12 +525,3 @@ __attribute__((destructor))
 	static void fini(void) {
 		fduserdata_destroy(fdtable);
 	}
-
-/*
-	 int main() {
-//ioth_newstack("vdestack", "vxvde://");
-//ioth_newstackl("vdestack", "vde://", NULL);
-//ioth_newstackl("vdestack", "vde://", "vxvde://234.0.0.0.1", "tap://tap0", NULL);
-return 0;
-}*/
-
