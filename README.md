@@ -1,3 +1,18 @@
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 # libioth
 
 ## The definitive API for the Internet of Threads
@@ -60,6 +75,25 @@ This function terminates/deletes a stack. It returns -1 in case of error, 0 othe
 int ioth_msocket(struct ioth *iothstack, int domain, int type, int protocol);
 ```
 This is the multi-stack supporting extension of `socket`(2). It behaves exactly as `socket` except for the added heading argument that allows the choice of the stack among those currently available (previously created by a `ioth_newstack*`.
+
+### default stack
+
+```C
+void ioth_set_defstack(struct ioth *iothstack);
+struct ioth *ioth_get_defstack(void);
+```
+
+These functions define and retrieve the default stack, respectively. When the value of the default stack is NULL, the native stack
+provided by the kernel is used as default stack. This is the initial value defined by the library.
+
+The default stack is implicitely used by `ioth_msocket` if its first argument `iothstack` is NULL.
+
+### socket
+```C
+int ioth_socket(int domain, int type, int protocol);
+```
+
+`ioth_socket` opens a socket using the default stack: `ioth_socket(d, t, p)` is an alias for `ioth_msocket(NULL, d, t, p)`
 
 ### for everything else... Berkeley Sockets
 
