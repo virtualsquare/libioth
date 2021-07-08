@@ -1,18 +1,3 @@
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 # libioth
 
 ## The definitive API for the Internet of Threads
@@ -83,10 +68,13 @@ void ioth_set_defstack(struct ioth *iothstack);
 struct ioth *ioth_get_defstack(void);
 ```
 
-These functions define and retrieve the default stack, respectively. When the value of the default stack is NULL, the native stack
-provided by the kernel is used as default stack. This is the initial value defined by the library.
+These functions define and retrieve the default stack, respectively.
 
-The default stack is implicitely used by `ioth_msocket` if its first argument `iothstack` is NULL.
+The default stack is implicitely used by `ioth_msocket` when its first argument `iothstack` is NULL.
+
+The default stack is initially defined as the native stack
+provided by the kernel.
+Use `ioth_set_defstack(mystack)` to define `mystack` as the current default stack. `ioth_set_defstack(NULL)` to revert the default stack to the native stack.
 
 ### socket
 ```C
