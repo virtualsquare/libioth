@@ -34,7 +34,7 @@ add_definitions(-D_GNU_SOURCE)
 include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 include_directories(${CMAKE_CURRENT_BINARY_DIR})
 
-add_library(ioth SHARED ioth.c)
+add_library(ioth SHARED ioth.c ioth_getifaddrs.c)
 target_link_libraries(ioth -ldl -lfduserdata)
 set_target_properties(ioth PROPERTIES VERSION ${PROJECT_VERSION}
     SOVERSION ${PROJECT_VERSION_MAJOR})

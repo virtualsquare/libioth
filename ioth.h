@@ -6,6 +6,7 @@
 #include <sys/uio.h>
 #include <unistd.h>
 #include <fcntl.h>
+#include <ifaddrs.h>
 
 #include <nlinline+.h>
 
@@ -54,6 +55,10 @@ int ioth_ioctl(int fd, unsigned long cmd, void *argp);
 int ioth_fcntl(int fd, int cmd, long val);
 
 NLINLINE_LIBMULTI(ioth_)
+
+int ioth_getifaddrs(struct ioth *stack, struct ifaddrs **ifap);
+void ioth_freeifaddrs(struct ifaddrs *ifa);
+
 /* ----------------------------------- for ioth plugins */
 
 struct ioth_functions;
