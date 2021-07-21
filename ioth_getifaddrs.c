@@ -95,7 +95,7 @@ static void *add_sockaddr_ll(struct nlattr *attr, int ifindex, unsigned ifi_type
 
 /* add ifa_data from IFLA_STATS */
 static void *add_ifla_data(struct nlattr *attr) {
-	if (attr->nla_len == sizeof(*attr) + sizeof(struct rtnl_link_stats)) {
+	if (attr != NULL && attr->nla_len == sizeof(*attr) + sizeof(struct rtnl_link_stats)) {
 		void *data = malloc(sizeof(struct rtnl_link_stats));
 		if (data) {
 			memcpy(data, attr + 1, sizeof(struct rtnl_link_stats));
