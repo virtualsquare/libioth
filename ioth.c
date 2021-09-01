@@ -523,5 +523,7 @@ __attribute__((constructor))
 
 __attribute__((destructor))
 	static void fini(void) {
-		fduserdata_destroy(fdtable);
+		FDUSERDATA *oldfdtable = fdtable;
+		fdtable = NULL;
+		fduserdata_destroy(oldfdtable);
 	}
