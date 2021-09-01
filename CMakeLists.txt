@@ -35,14 +35,14 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 include_directories(${CMAKE_CURRENT_BINARY_DIR})
 
 add_library(ioth SHARED ioth.c ioth_getifaddrs.c)
-target_link_libraries(ioth -ldl -lfduserdata)
+target_link_libraries(ioth dl fduserdata)
 set_target_properties(ioth PROPERTIES VERSION ${PROJECT_VERSION}
     SOVERSION ${PROJECT_VERSION_MAJOR})
 install(TARGETS ioth DESTINATION ${CMAKE_INSTALL_LIBDIR})
 install(FILES ioth.h DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
 
 add_library(iothaddr SHARED iothaddr.c)
-target_link_libraries(iothaddr -lmhash)
+target_link_libraries(iothaddr mhash)
 set_target_properties(iothaddr PROPERTIES VERSION ${PROJECT_VERSION}
     SOVERSION ${PROJECT_VERSION_MAJOR})
 install(TARGETS iothaddr DESTINATION ${CMAKE_INSTALL_LIBDIR})
