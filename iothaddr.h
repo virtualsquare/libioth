@@ -21,6 +21,7 @@ void iothaddr_hash(void *addr, const char *name, const char *passwd, uint32_t ot
 	 otip_offset can be used on servers to anticipate the validity of addresses to tolerate
 	 negative drifts or clients' clocks. */
 static inline uint32_t iothaddr_otiptime(int otip_period, int otip_offset) {
+	if (otip_period == 0) return 0;
   return (uint32_t) ((time(NULL) + otip_offset) / otip_period);
 }
 
