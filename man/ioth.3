@@ -1,0 +1,168 @@
+.\" Copyright (C) 2022 VirtualSquare. Project Leader: Renzo Davoli
+.\"
+.\" This is free documentation; you can redistribute it and/or
+.\" modify it under the terms of the GNU General Public License,
+.\" as published by the Free Software Foundation, either version 2
+.\" of the License, or (at your option) any later version.
+.\"
+.\" The GNU General Public License's references to "object code"
+.\" and "executables" are to be interpreted as the output of any
+.\" document formatting or typesetting system, including
+.\" intermediate and printed output.
+.\"
+.\" This manual is distributed in the hope that it will be useful,
+.\" but WITHOUT ANY WARRANTY; without even the implied warranty of
+.\" MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+.\" GNU General Public License for more details.
+.\"
+.\" You should have received a copy of the GNU General Public
+.\" License along with this manual; if not, write to the Free
+.\" Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston,
+.\" MA 02110-1301 USA.
+.\"
+.\" generated with Ronn-NG/v0.10.1
+.\" http://github.com/apjanke/ronn-ng/tree/0.10.1.pre1
+.TH "IOTH" "3" "August 2022" "VirtualSquare"
+.SH "NAME"
+ioth_newstack, ioth_newstackl, ioth_newstackv, ioth_delstack, ioth_msocket, ioth_set_defstack, ioth_get_defstack, ioth_socket, ioth_close, ioth_bind, ioth_connect, ioth_listen, ioth_accept, ioth_getsockname, ioth_getpeername, ioth_setsockopt, ioth_getsockopt, ioth_shutdown, ioth_ioctl, ioth_fcntl, ioth_read, ioth_readv, ioth_recv, ioth_recvfrom, ioth_recvmsg, ioth_write, ioth_writev, ioth_send, ioth_sendto ioth_sendmsg, ioth_if_nametoindex, ioth_linksetupdown, ioth_ipaddr_add, ioth_ipaddr_del, ioth_iproute_add, ioth_iproute_del, ioth_iplink_add, ioth_iplink_del, ioth_linksetaddr, ioth_linkgetaddr \- Internet of Threads (IoTh) library
+.SH "SYNOPSIS"
+\fB#include <ioth\.h>\fR
+.P
+\fBstruct ioth *ioth_newstack(const char *\fR\fIstack\fR\fB, const char *\fR\fIvnl\fR\fB);\fR
+.P
+\fBstruct ioth *ioth_newstackl(const char *\fR\fIstack\fR\fB, const char *\fR\fIvnl\fR\fB, \|\.\|\.\|\. );\fR
+.P
+\fBstruct ioth *ioth_newstackv(const char *\fR\fIstack\fR\fB, const char *\fR\fIvnlv\fR\fB[]);\fR
+.P
+\fBint ioth_delstack(struct ioth *\fR\fIiothstack\fR\fB);\fR
+.P
+\fBint ioth_msocket(struct ioth *\fR\fIiothstack\fR\fB, int\fR \fIdomain\fR\fB, int\fR \fItype\fR\fB, int\fR \fIprotocol\fR\fB);\fR
+.P
+\fBvoid ioth_set_defstack(struct ioth *\fR\fIiothstack\fR\fB);\fR
+.P
+\fBstruct ioth *ioth_get_defstack(void);\fR
+.P
+\fBint ioth_socket(int\fR \fIdomain\fR\fB, int\fR \fItype\fR\fB, int\fR \fIprotocol\fR\fB);\fR
+.IP "\(bu" 4
+Berkeley Sockets API
+.IP "" 0
+.P
+\fBint ioth_close(int\fR \fIfd\fR\fB);\fR
+.P
+\fBint ioth_bind(int\fR \fIsockfd\fR\fB, const struct sockaddr *\fR\fIaddr\fR\fB, socklen_t\fR \fIaddrlen\fR\fB);\fR
+.P
+\fBint ioth_connect(int\fR \fIsockfd\fR\fB, const struct sockaddr *\fR\fIaddr\fR\fB, socklen_t\fR \fIaddrlen\fR\fB);\fR
+.P
+\fBint ioth_listen(int\fR \fIsockfd\fR\fB, int\fR \fIbacklog\fR\fB);\fR
+.P
+\fBint ioth_accept(int\fR \fIsockfd\fR\fB, struct sockaddr *restrict\fR \fIaddr\fR\fB, socklen_t *restrict\fR \fIaddrlen\fR\fB);\fR
+.P
+\fBint ioth_getsockname(int\fR \fIsockfd\fR\fB, struct sockaddr *restrict\fR \fIaddr\fR\fB, socklen_t *restrict\fR \fIaddrlen\fR\fB);\fR
+.P
+\fBint ioth_getpeername(int\fR \fIsockfd\fR\fB, struct sockaddr *restrict\fR \fIaddr\fR\fB, socklen_t *restrict\fR \fIaddrlen\fR\fB);\fR
+.P
+\fBint ioth_getsockopt(int\fR \fIsockfd\fR\fB, int\fR \fIlevel\fR\fB, int\fR \fIoptname\fR\fB, void *restrict\fR \fIoptval\fR\fB, socklen_t *restrict\fR \fIoptlen\fR\fB);\fR
+.P
+\fBint ioth_setsockopt(int\fR \fIsockfd\fR\fB, int\fR \fIlevel\fR\fB, int\fR \fIoptname\fR\fB, const void *\fR\fIoptval\fR\fB, socklen_t\fR \fIoptlen\fR\fB);\fR
+.P
+\fBint ioth_shutdown(int\fR \fIsockfd\fR\fB, int\fR \fIhow\fR\fB);\fR
+.P
+\fBint ioth_ioctl(int\fR \fIfd\fR\fB, unsigned long\fR \fIrequest\fR\fB, \|\.\|\.\|\.);\fR
+.P
+\fBint ioth_fcntl(int\fR \fIfd\fR\fB, int\fR \fIcmd\fR\fB, \|\.\|\.\|\. /* arg */ );\fR
+.P
+\fBssize_t ioth_read(int\fR \fIfd\fR\fB, void *\fR\fIbuf\fR\fB, size_t\fR \fIcount\fR\fB);\fR
+.P
+\fBssize_t ioth_readv(int\fR \fIfd\fR\fB, const struct iovec *\fR\fIiov\fR\fB, int\fR \fIiovcnt\fR\fB);\fR
+.P
+\fBssize_t ioth_recv(int\fR \fIsockfd\fR\fB, void *\fR\fIbuf\fR\fB, size_t\fR \fIlen\fR\fB, int\fR \fIflags\fR\fB);\fR
+.P
+\fBssize_t ioth_recvfrom(int\fR \fIsockfd\fR\fB, void *restrict\fR \fIbuf\fR\fB, size_t\fR \fIlen\fR\fB, int\fR \fIflags\fR\fB, struct sockaddr *restrict\fR \fIsrc_addr\fR\fB, socklen_t *restrict\fR \fIaddrlen\fR\fB);\fR
+.P
+\fBssize_t ioth_recvmsg(int\fR \fIsockfd\fR\fB, struct msghdr *\fR\fImsg\fR\fB, int\fR \fIflags\fR\fB);\fR
+.P
+\fBssize_t ioth_write(int\fR \fIfd\fR\fB, const void *\fR\fIbuf\fR\fB, size_t\fR \fIcount\fR\fB);\fR
+.P
+\fBssize_t ioth_writev(int\fR \fIfd\fR\fB, const struct iovec *\fR\fIiov\fR\fB, int\fR \fIiovcnt\fR\fB);\fR
+.P
+\fBssize_t ioth_send(int\fR \fIsockfd\fR\fB, const void *\fR\fIbuf\fR\fB, size_t\fR \fIlen\fR\fB, int\fR \fIflags\fR\fB);\fR
+.P
+\fBssize_t ioth_sendto(int\fR \fIsockfd\fR\fB, const void *\fR\fIbuf\fR\fB, size_t\fR \fIlen\fR\fB, int\fR \fIflags\fR\fB, const struct sockaddr *\fR\fIdest_addr\fR\fB, socklen_t\fR \fIaddrlen\fR\fB);\fR
+.P
+\fBssize_t ioth_sendmsg(int\fR \fIsockfd\fR\fB, const struct msghdr *\fR\fImsg\fR\fB, int\fR \fIflags\fR\fB);\fR
+.IP "\(bu" 4
+nlinline+ API
+.IP "" 0
+.P
+\fBint ioth_if_nametoindex(const char *\fR\fIifname\fR\fB);\fR
+.P
+\fBint ioth_linksetupdown(unsigned int\fR \fIifindex\fR\fB, int\fR \fIupdown\fR\fB);\fR
+.P
+\fBint ioth_ipaddr_add(int\fR \fIfamily\fR\fB, void *\fR\fIaddr\fR\fB, int\fR \fIprefixlen\fR\fB, unsigned int\fR \fIifindex\fR\fB);\fR
+.P
+\fBint ioth_ipaddr_del(int\fR \fIfamily\fR\fB, void *\fR\fIaddr\fR\fB, int\fR \fIprefixlen\fR\fB, unsigned int\fR \fIifindex\fR\fB);\fR
+.P
+\fBint ioth_iproute_add(int\fR \fIfamily\fR\fB, void *\fR\fIdst_addr\fR\fB, int\fR \fIdst_prefixlen\fR\fB, void *\fR\fIgw_addr\fR\fB, unsigned int\fR \fIifindex\fR\fB);\fR
+.P
+\fBint ioth_iproute_del(int\fR \fIfamily\fR\fB, void *\fR\fIdst_addr\fR\fB, int\fR \fIdst_prefixlen\fR\fB, void *\fR\fIgw_addr\fR\fB, unsigned int\fR \fIifindex\fR\fB);\fR
+.P
+\fBint ioth_iplink_add(const char *\fR\fIifname\fR\fB, unsigned int\fR \fIifindex\fR\fB, const char *\fR\fItype\fR\fB, const char *\fR\fIdata\fR\fB);\fR
+.P
+\fBint ioth_iplink_del(const char *\fR\fIifname\fR\fB, unsigned int\fR \fIifindex\fR`);
+.P
+\fBint ioth_linksetaddr(unsigned int\fR \fIifindex\fR\fB, void *\fR\fImacaddr\fR`);
+.P
+\fBint ioth_linkgetaddr(unsigned int\fR \fIifindex\fR\fB, void *\fR\fImacaddr\fR`);
+.SH "DESCRIPTION"
+\fBlibioth\fR is the API for the Internet of Threads\. TCP\-IP networking stacks can be loaded as dynamic libraries at run time\.
+.IP "\(bu" 4
+the API is minimal: Berkeley Sockets + msocket + newstack/delstack\.
+.IP "\(bu" 4
+the stack implementation can be chosen as a plugin at run time\.
+.IP "\(bu" 4
+netlink based stack/interface/ip configuration via nlinline\.
+.IP "\(bu" 4
+ioth sockets are real file descriptors, poll/select/ppoll/pselect/epoll friendly
+.IP "\(bu" 4
+plug\-ins can be loaded in private address namespaces: libioth supports several stacks of the same type (same plugin) even if the stack implementation library was designed to provide just one stack\.
+.IP "" 0
+.P
+\fBlibioth\fR provides the following functions:
+.TP
+\fBioth_newstack\fR
+\fBioth_newstack\fR creates a new stack without any interface if \fBvnl\fR is NULL, otherwise the new stack has a virtual interface connected to the vde network identified by the VNL (Virtual Network Locator, see vde_open(3) )\.
+.TP
+\fBioth_newstackl\fR, \fBioth_newstackv\fR
+\fBioth_newstackl\fR and \fBioth_newstackv\fR (l = list, v = vector) support the creation of a new stack with several interfaces\. It is possible to provide the VNLs as a sequence of arguments (as in execl(3)) or as a NULL terminated array of VNLs (as the arguments in execv(3))\.
+.TP
+\fBioth_delstack\fR
+This function terminates/deletes a stack\.
+.TP
+\fBioth_msocket\fR
+This is the multi\-stack supporting extension of socket(2)\. It behaves exactly as socket except for the added heading argument that allows the choice of the stack among those currently available (previously created by a \fBioth_newstack*\fR)\.
+.TP
+\fBioth_set_defstack\fR, \fBioth_get_defstack\fR
+These functions define and retrieve the default stack, respectively\. The default stack is implicitely used by ioth_msocket when its first argument iothstack is NULL\. The default stack is initially defined as the native stack provided by the kernel\. Use ioth_set_defstack(mystack) to define mystack as the current default stack\. ioth_set_defstack(NULL) to revert the default stack to the native stack\.
+.TP
+\fBioth_socket\fR
+\fBioth_socket\fR opens a socket using the default stack: \fBioth_socket(d, t, p)\fR is an alias for \fBioth_msocket(NULL, d, t, p)\fR
+.TP
+\fBioth_close\fR, \fBioth_bind\fR, \fBioth_connect\fR, \fBioth_listen\fR, \fBioth_accept\fR, \fBioth_getsockname\fR, \fBioth_getpeername\fR, \fBioth_setsockopt\fR, \fBioth_getsockopt\fR, \fBioth_shutdown\fR, \fBioth_ioctl\fR, \fBioth_fcntl\fR, \fBioth_read\fR, \fBioth_readv\fR, \fBioth_recv\fR, \fBioth_recvfrom\fR, \fBioth_recvmsg\fR, \fBioth_write\fR, \fBioth_writev\fR, \fBioth_send\fR, \fBioth_sendto\fR, \fBioth_sendmsg\fR
+these functions have the same signature and functionalities of their counterpart in (2) and (3) without the \fBioth_\fR prefix\.
+.TP
+\fBioth_if_nametoindex\fR, \fBioth_linksetupdown\fR, \fBioth_ipaddr_add\fR, ` ioth_ipaddr_del\fB,\fRioth_iproute_add\fB,\fRioth_iproute_del\fB,\fR ioth_iplink_add\fB,\fRioth_iplink_del\fB,\fRioth_linksetaddr\fB,\fRioth_linkgetaddr\fB\fR
+these functions have the same signature and functionnalities described in nlinline`(3)\.
+.SH "RETURN VALUE"
+\fBioth_newstack\fR, \fBioth_newstackl\fR, \fBioth_newstackv\fR return a \fBstruct stack\fR pointer, NULL in case of error\. This address is used as a descriptor of the newly created stack and is later passed as parameter to \fBioth_msocket\fR, \fBioth_set_defstack\fR or \fBioth_delstack\fR\.
+.P
+\fBioth_msocket\fR and \fBioth_socket\fR return the file descriptor of the new socket, \-1 in case of errore\.
+.P
+\fBioth_delstack\fR returns \-1 in case of error, 0 otherwise\. If there are file descriptors already in use, this function fails and errno is EBUSY\.
+.P
+\fBioth_get_defstack\fR returns the stack descriptor of the default stack\.
+.P
+The return values of all the other functions are defined in the man pages of the corresponding functions provided by the GNU C library or nlinline(3)
+.SH "SEE ALSO"
+vde_plug(1), vdeplug_open(3), nlinline(3)
+.SH "AUTHOR"
+VirtualSquare\. Project leader: Renzo Davoli

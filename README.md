@@ -14,8 +14,6 @@ provide just one stack.
 
 Pre-requisites: `fduserdata`, `nlinline`.
 
-The `ioth_vdestack` plugin is built only if `libvdestack` is installed.
-
 Libioth uses cmake. The standard building/installing procedure is:
 
 ```bash
@@ -126,7 +124,7 @@ int ioth_iplink_add(const char *ifname, unsigned int ifindex, const char *type,
     const char *data);
 int ioth_iplink_del(const char *ifname, unsigned int ifindex);
 int ioth_linksetaddr(unsigned int ifindex, void *macaddr);
-int ioth _linkgetaddr(unsigned int ifindex, void *macaddr);
+int ioth_linkgetaddr(unsigned int ifindex, void *macaddr);
 
 ```
 
