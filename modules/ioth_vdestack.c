@@ -41,6 +41,8 @@
 
 #define CHILD_STACK_SIZE (256 * 1024)
 
+const char *ioth_vdestack_license = "SPDX-License-Identifier: LGPL-2.1-or-later";
+
 struct vdestack {
 	pid_t pid;
 	pid_t parentpid;

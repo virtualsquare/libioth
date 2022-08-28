@@ -24,10 +24,16 @@
 #include <config.h>
 
 #include <fduserdata.h>
+#include <checklicense.h>
 #include <ioth.h>
 
 static FDUSERDATA *fdtable;
 static __thread void *stackdata;
+static const char *proglicense;
+
+void ioth_set_license(const char *license) {
+	proglicense = license;
+}
 
 #define FOREACHDEFFUN \
 	__MACROFUN(newstack) \
@@ -126,6 +132,7 @@ static void *ioth_dlsym(void *handle, const char *modname, const char *symbol) {
 	return dlsym(handle, extended_symbol);
 }
 
+
 #define gotoerr(err, label) do {errno = err; goto label;} while(0)
 
 static struct ioth *_ioth_newstackv(const char *stack, const char *options, const char *vnlv[]) {
@@ -136,11 +143,17 @@ static struct ioth *_ioth_newstackv(const char *stack, const char *options, cons
 		*iothstack = native_iothstack;
 		iothstack->count = 0;
 	} else {
+		char **pstacklicense = NULL;
+		char *stacklicense = NULL;
 		iothstack->handle = ioth_dlopen(stack, RTLD_NOW);
 		// printf("dlopen %p\n", iothstack->handle);
 		if (iothstack->handle == NULL)
 			gotoerr (ENOTSUP, errdl);
 		iothstack->f.getstackdata = getstackdata;
+		pstacklicense = ioth_dlsym(iothstack->handle, stack, "license");
+		if (pstacklicense != NULL) stacklicense = *pstacklicense;
+		if (checklicense(proglicense, stacklicense) != 1)
+			gotoerr (EPERM, errnoioth);
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wpedantic"
 #define __MACROFUN(X) iothstack->f.X = ioth_dlsym(iothstack->handle, stack, #X);

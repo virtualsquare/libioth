@@ -13,6 +13,8 @@
 struct ioth;
 
 /* ioth stack create/destroy */
+/* License Management: set program license (SPDX Specification) */
+void ioth_set_license(const char *license);
 
 /* one interface (or no interfaces if vnl == NULL) */
 struct ioth *ioth_newstack(const char *stack, const char *vnl);

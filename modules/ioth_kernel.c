@@ -16,6 +16,8 @@
 
 #include <ioth.h>
 
+const char *ioth_kernel_license = "SPDX-License-Identifier: LGPL-2.1-or-later";
+
 void *ioth_kernel_newstack(const char *vnlv[], const char *options,
 		struct ioth_functions *ioth_f) {
 	(void) vnlv;
