@@ -2,17 +2,24 @@
  *   libioth: choose your networking library as a plugin at run time.
  *   test program: server
  *
- *   Copyright (C) 2020  Renzo Davoli <renzo@cs.unibo.it> VirtualSquare team.
+ *   Copyright (C) 2020-2022  Renzo Davoli <renzo@cs.unibo.it>
+ *                            VirtualSquare team.
  *
- *   This library is free software; you can redistribute it and/or modify it
- *   under the terms of the GNU Lesser General Public License as published by
- *   the Free Software Foundation; either version 2.1 of the License, or (at
- *   your option) any later version.
+ * this test program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 2
+ * of the License, or (at your option) any later version.
  *
- *   You should have received a copy of the GNU Lesser General Public License
- *   along with this library; if not, see <http://www.gnu.org/licenses/>.
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
  *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; If not, see <http://www.gnu.org/licenses/>.
  */
+
+#define SPDX_LICENSE "SPDX-License-Identifier: GPL-2.0-or-later"
 
 #ifndef _GNU_SOURCE
 #define _GNU_SOURCE
@@ -98,6 +105,7 @@ struct ioth *net_setup(const char **args) {
 }
 
 int main(int argc, const char *argv[]) {
+	ioth_set_license(SPDX_LICENSE);
 	if (argc < 2) {
 		fprintf(stderr, "Usage:\n\n\t%s stack [ vnl vnl ]\n\n", basename(argv[0]));
 		exit(1);
