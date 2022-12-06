@@ -16,7 +16,6 @@
 
 #include <ioth.h>
 #include <stdio.h>
-#include <vunet.h>
 #include <string.h>
 #include <fcntl.h>
 #include <stdlib.h>
