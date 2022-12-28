@@ -130,6 +130,34 @@ int ioth_linkgetaddr(unsigned int ifindex, void *macaddr);
 
 a detailed description can be found in `nlinline`(3).
 
+### License management.
+
+`liblwip` verifies that the program and the stack implementation plugin have compatible licenses.
+
+A program can specify its license by the `ioth_set_license` function. Licenses are encoded using SPDX. e.g.:
+```
+#define SPDX_LICENSE "SPDX-License-Identifier: GPL-2.0-or-later"
+...
+    ioth_set_license(SPDX_LICENSE);
+```
+If a program does not specify its license it can load a stack plugin only if the plugin can be linked
+to proprietary programs.
+
+The license of a plugin is defined by a global variable named `ioth_xxxx_license` (where xxxx is the name of the plugin).
+e.g.:
+```
+const char *ioth_vdestack_license = "SPDX-License-Identifier: LGPL-2.1-or-later";
+```
+or
+```
+const char *ioth_picox_license = "SPDX-License-Identifier: GPL-2.0-only OR GPL-3.0-only";
+```
+
+If a plugin does not specify any license tag it means that has no license requirements.
+
+Note: the current implementation of the license checker supports the following plugin licenses:
+`LGPL-*`, `GPL-2.0-or-later`, `GPL-3.0-or-later`, `GPL-2.0-only OR GPL-3.0-only`.
+
 ## Example: an IPv4 TCP echo server
 
 The complete source code of this example is provided in this git repository:
