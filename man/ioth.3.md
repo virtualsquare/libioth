@@ -27,7 +27,7 @@
 
 ioth_newstack, ioth_newstackl, ioth_newstackv, ioth_delstack, ioth_msocket,
 ioth_set_defstack, ioth_get_defstack, ioth_socket,
-ioth_close, ioth_bind, ioth_connect, ioth_listen, ioth_accept, 
+ioth_close, ioth_bind, ioth_connect, ioth_listen, ioth_accept,
 ioth_getsockname, ioth_getpeername, ioth_setsockopt, ioth_getsockopt,
 ioth_shutdown, ioth_ioctl, ioth_fcntl,
 ioth_read, ioth_readv, ioth_recv, ioth_recvfrom, ioth_recvmsg,
@@ -141,17 +141,17 @@ can be loaded as dynamic libraries at run time.
 : `ioth_newstack` creates a new stack without any interface if `vnl` is NULL, otherwise the new stack has a virtual interface connected to the vde network identified by the VNL (Virtual Network Locator, see vde_open(3) ).
 
   `ioth_newstackl`, `ioth_newstackv`
-  `ioth_newstackl` and `ioth_newstackv` (l = list, v = vector) support the creation of a new stack with several interfaces. It is possible to provide the VNLs as a sequence of arguments (as in execl(3)) or as a NULL terminated array of VNLs (as the arguments in execv(3)).
+: ioth_newstackl` and `ioth_newstackv` (l = list, v = vector) support the creation of a new stack with several interfaces. It is possible to provide the VNLs as a sequence of arguments (as in execl(3)) or as a NULL terminated array of VNLs (as the arguments in execv(3)).
 
   `ioth_delstack`
-  This function terminates/deletes a stack. 
+: This function terminates/deletes a stack.
 
   `ioth_msocket`
 : This is the multi-stack supporting extension of socket(2). It behaves exactly as socket except for the added heading argument that allows the choice of the stack among those currently available (previously created by a `ioth_newstack*`).
 
   `ioth_set_defstack`, `ioth_get_defstack`
 : These functions define and retrieve the default stack, respectively.
-: The default stack is implicitely used by ioth_msocket when its first argument iothstack is NULL.
+: The default stack is implicitly used by ioth_msocket when its first argument iothstack is NULL.
 : The default stack is initially defined as the native stack provided by the kernel. Use ioth_set_defstack(mystack) to define mystack as the current default stack. ioth_set_defstack(NULL) to revert the default stack to the native stack.
 
   `ioth_socket`
@@ -175,7 +175,7 @@ and is later passed as parameter to `ioth_msocket`, `ioth_set_defstack` or `ioth
 
 `ioth_get_defstack` returns the stack descriptor of the default stack.
 
-The return values of all the other functions are defined in the man pages of the 
+The return values of all the other functions are defined in the man pages of the
 corresponding functions provided by the GNU C library or nlinline(3)
 
 # SEE ALSO

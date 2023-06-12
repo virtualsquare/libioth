@@ -36,7 +36,7 @@
 . ftr VB CB
 . ftr VBI CBI
 .\}
-.TH "IOTH" "3" "December 2022" "" "Library Functions Manual"
+.TH "IOTH" "3" "June 2023" "VirtualSquare" "Library Functions Manual"
 .hy
 .SH NAME
 .PP
@@ -231,15 +231,16 @@ implementation library was designed to provide just one stack.
 \f[V]vnl\f[R] is NULL, otherwise the new stack has a virtual interface
 connected to the vde network identified by the VNL (Virtual Network
 Locator, see vde_open(3) ).
-.PP
+.TP
 \f[V]ioth_newstackl\f[R], \f[V]ioth_newstackv\f[R]
-\f[V]ioth_newstackl\f[R] and \f[V]ioth_newstackv\f[R] (l = list, v =
-vector) support the creation of a new stack with several interfaces.
+ioth_newstackl\f[V]and\f[R]ioth_newstackv\[ga] (l = list, v = vector)
+support the creation of a new stack with several interfaces.
 It is possible to provide the VNLs as a sequence of arguments (as in
 execl(3)) or as a NULL terminated array of VNLs (as the arguments in
 execv(3)).
-.PP
-\f[V]ioth_delstack\f[R] This function terminates/deletes a stack.
+.TP
+\f[V]ioth_delstack\f[R]
+This function terminates/deletes a stack.
 .TP
 \f[V]ioth_msocket\f[R]
 This is the multi-stack supporting extension of socket(2).
@@ -249,7 +250,7 @@ allows the choice of the stack among those currently available
 .TP
 \f[V]ioth_set_defstack\f[R], \f[V]ioth_get_defstack\f[R]
 These functions define and retrieve the default stack, respectively.
-The default stack is implicitely used by ioth_msocket when its first
+The default stack is implicitly used by ioth_msocket when its first
 argument iothstack is NULL.
 The default stack is initially defined as the native stack provided by
 the kernel.
