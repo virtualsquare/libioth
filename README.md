@@ -1,6 +1,6 @@
 # libioth
 
-## The definitive API for the Internet of Threads
+## The unified API for the Internet of Threads
 
 * the API is minimal: Berkeley Sockets + msocket + newstack/delstack.
 * the stack implementation can be chosen as a plugin at run time.
