@@ -38,7 +38,7 @@ ioth_iplink_add, ioth_iplink_del, ioth_linksetaddr, ioth_linkgetaddr -
 Internet of Threads (IoTh) library
 
 # SYNOPSIS
-`#include <ioth.h>
+`#include <ioth.h>`
 
 `struct ioth *ioth_newstack(const char *`_stack_`, const char *`_vnl_`);`
 
