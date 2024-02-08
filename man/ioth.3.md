@@ -1,5 +1,6 @@
 <!--
-.\" Copyright (C) 2022 VirtualSquare. Project Leader: Renzo Davoli
+.\" Copyright (C) 2022-2024 VirtualSquare.
+.\"                         Project Leader: Renzo Davoli
 .\"
 .\" This is free documentation; you can redistribute it and/or
 .\" modify it under the terms of the GNU General Public License,
@@ -116,13 +117,13 @@ Internet of Threads (IoTh) library
 
 `int ioth_iproute_del(int ` _family_`, void *`_dst_addr_`, int ` _dst_prefixlen_`, void *`_gw_addr_`, unsigned int ` _ifindex_`);`
 
-`int ioth_iplink_add(const char *`_ifname_`, unsigned int ` _ifindex_`, const char *`_type_`, const char *`_data_`);`
+`int ioth_iplink_add(const char *`_ifname_`, unsigned int ` _ifindex_`, const char *`_type_`, struct nl_iplink_data *`ifd`, int ` nifd`);`
 
-`int ioth_iplink_del(const char *`_ifname_`, unsigned int ` _ifindex_`);
+`int ioth_iplink_del(const char *`_ifname_`, unsigned int ` _ifindex_`);`
 
-`int ioth_linksetaddr(unsigned int ` _ifindex_`, void *`_macaddr_`);
+`int ioth_linksetaddr(unsigned int ` _ifindex_`, void *`_macaddr_`);`
 
-`int ioth_linkgetaddr(unsigned int ` _ifindex_`, void *`_macaddr_`);
+`int ioth_linkgetaddr(unsigned int ` _ifindex_`, void *`_macaddr_`);`
 
 # DESCRIPTION
 
