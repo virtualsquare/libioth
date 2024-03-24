@@ -37,6 +37,7 @@
 
 #define DEFAULT_IF_NAME "vde0"
 #define POLLING_TIMEOUT 10000
+#define ETH_HEADER_SIZE 14
 
 #define CHILD_STACK_SIZE (256 * 1024)
 
@@ -123,7 +124,8 @@ static int childFunc(void *arg)
 			if (pfd[i].revents & POLLIN) {
 				n = vde_recv(stack->iface[i].vdeconn, buf, VDE_ETHBUFSIZE, 0);
 				if (n <= 0) break;
-				unused = write(pfd[i + noif].fd, buf, n);
+				if (n >= ETH_HEADER_SIZE)
+					unused = write(pfd[i + noif].fd, buf, n);
 			}
 		}
 		(void) unused;
