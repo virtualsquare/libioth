@@ -26,14 +26,14 @@ int checklicense(const char *prglicense, const char *liblicense) {
 	/* No lib license restrictions: ok to load */
 	if (liblicense == NULL) return 1;
 	if (strncmp(liblicense, SPDX_PREFIX, SPDX_PREFIXLEN) == 0)
-			liblicense += SPDX_PREFIXLEN;
+		liblicense += SPDX_PREFIXLEN;
 	/* It is a permissive library */
 	if (strncasecmp(liblicense, "LGPL-", 5) == 0)
 		return 1;
 	/* Lib has requirements, no license spec from prg -> deny */
 	if (prglicense == NULL) return 0;
 	if (strncmp(prglicense, SPDX_PREFIX, SPDX_PREFIXLEN) == 0)
-			prglicense += SPDX_PREFIXLEN;
+		prglicense += SPDX_PREFIXLEN;
 	/* It is the very same license: OK */
 	if (strcasecmp(prglicense, liblicense) == 0) return 1;
 	if (strcasecmp(liblicense, "GPL-2.0-or-later") == 0) {

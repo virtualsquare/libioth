@@ -58,14 +58,14 @@ int ioth_fcntl(int fd, int cmd, long val);
 
 NLINLINE_LIBMULTI(ioth_)
 
-int ioth_getifaddrs(struct ioth *stack, struct ifaddrs **ifap);
-void ioth_freeifaddrs(struct ifaddrs *ifa);
+	int ioth_getifaddrs(struct ioth *stack, struct ifaddrs **ifap);
+	void ioth_freeifaddrs(struct ifaddrs *ifa);
 
-/* ----------------------------------- for ioth plugins */
+	/* ----------------------------------- for ioth plugins */
 
-struct ioth_functions;
-void *newstack_prototype(const char *vnlv[], const char *options,
-		struct ioth_functions *ioth_f);
+	struct ioth_functions;
+	void *newstack_prototype(const char *vnlv[], const char *options,
+			struct ioth_functions *ioth_f);
 int delstack_prototype(void *stackdata);
 void *getstackdata_prototype(void);
 
@@ -112,10 +112,10 @@ struct ioth_functions {
 /* This  function converts a 6 byte MAC address family into a character string.
 	 The buffer dst must be at least MAC_ADDRSTRLEN bytes */
 static inline const char *ioth_ntomac(const void *src, char *dst, size_t size) {
-  const unsigned char *mac = src;
-  snprintf(dst, size, "%02x:%02x:%02x:%02x:%02x:%02x",
-      mac[0], mac[1], mac[2], mac[3], mac[4], mac[5]);
-  return dst;
+	const unsigned char *mac = src;
+	snprintf(dst, size, "%02x:%02x:%02x:%02x:%02x:%02x",
+			mac[0], mac[1], mac[2], mac[3], mac[4], mac[5]);
+	return dst;
 }
 
 /* This  function converts the character string src into a 6 byte MAC address.
@@ -123,13 +123,13 @@ static inline const char *ioth_ntomac(const void *src, char *dst, size_t size) {
 	 "xx-xx-xx-xx-xx-xx" where xx is a sequence of two hexadecimal digits
 	 (not case sensitive) */
 static inline int ioth_macton(const char *src, void *dst) {
-  unsigned char *mac = dst;
-  if (sscanf(src, "%hhx:%hhx:%hhx:%hhx:%hhx:%hhx",
-      mac, mac + 1, mac + 2, mac + 3, mac + 4, mac + 5) != 6)
-    if (sscanf(src, "%hhx-%hhx-%hhx-%hhx-%hhx-%hhx",
-          mac, mac + 1, mac + 2, mac + 3, mac + 4, mac + 5) != 6)
-      return 0;
-  return 1;
+	unsigned char *mac = dst;
+	if (sscanf(src, "%hhx:%hhx:%hhx:%hhx:%hhx:%hhx",
+				mac, mac + 1, mac + 2, mac + 3, mac + 4, mac + 5) != 6)
+		if (sscanf(src, "%hhx-%hhx-%hhx-%hhx-%hhx-%hhx",
+					mac, mac + 1, mac + 2, mac + 3, mac + 4, mac + 5) != 6)
+			return 0;
+	return 1;
 }
 
 #endif

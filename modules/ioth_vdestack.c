@@ -93,14 +93,14 @@ static int childFunc(void *arg)
 	int i;
 	ssize_t unused;
 	for (i = 0; i < noif; i++) {
-    pfd[i].fd = vde_datafd(stack->iface[i].vdeconn);
-    pfd[i + noif].fd = open_tap(stack->iface[i].ifname);
-    pfd[i].events = pfd[i + noif].events = POLLIN;
-    pfd[i].revents = pfd[i + noif].revents = 0;
-  }
-  pfd[noif * 2].fd = stack->cmdpipe[DAEMONSIDE];
-  pfd[noif * 2].events = POLLIN;
-  pfd[noif * 2].revents = 0;
+		pfd[i].fd = vde_datafd(stack->iface[i].vdeconn);
+		pfd[i + noif].fd = open_tap(stack->iface[i].ifname);
+		pfd[i].events = pfd[i + noif].events = POLLIN;
+		pfd[i].revents = pfd[i + noif].revents = 0;
+	}
+	pfd[noif * 2].fd = stack->cmdpipe[DAEMONSIDE];
+	pfd[noif * 2].events = POLLIN;
+	pfd[noif * 2].revents = 0;
 	while (poll(pfd, noif * 2 + 1, POLLING_TIMEOUT) >= 0) {
 		char buf[VDE_ETHBUFSIZE];
 		size_t n;
@@ -296,8 +296,8 @@ int ioth_vdestack_socket(int domain, int type, int protocol) {
 
 void *ioth_vdestack_n_newstack(const char *vnlv[], const char *options,
 		struct ioth_functions *ioth_f)
-  __attribute__ ((alias ("ioth_vdestack_newstack")));
+	__attribute__ ((alias ("ioth_vdestack_newstack")));
 int ioth_vdestack_n_delstack(void *stackdata)
-  __attribute__ ((alias ("ioth_vdestack_delstack")));
+	__attribute__ ((alias ("ioth_vdestack_delstack")));
 int ioth_vdestack_n_socket(int domain, int type, int protocol)
-  __attribute__ ((alias ("ioth_vdestack_socket")));
+	__attribute__ ((alias ("ioth_vdestack_socket")));
