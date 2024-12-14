@@ -32,6 +32,8 @@
 #include <linux/if_tun.h>
 #include <libvdeplug.h>
 
+#define POLLTERM (POLLHUP | POLLERR | POLLNVAL)
+
 #define APPSIDE 0
 #define DAEMONSIDE 1
 
@@ -118,14 +120,25 @@ static int childFunc(void *arg)
 		for (i = 0; i < noif; i++) {
 			if (pfd[i + noif].revents & POLLIN) {
 				n = read(pfd[i + noif].fd, buf, VDE_ETHBUFSIZE);
-				if (n <= 0) break;
-				vde_send(stack->iface[i].vdeconn, buf, n, 0);
+				if (n > 0)
+					vde_send(stack->iface[i].vdeconn, buf, n, 0);
+				else {
+					close(pfd[i + noif].fd);
+					pfd[i].fd = pfd[i + noif].fd = -1;
+				}
 			}
 			if (pfd[i].revents & POLLIN) {
 				n = vde_recv(stack->iface[i].vdeconn, buf, VDE_ETHBUFSIZE, 0);
 				if (n <= 0) break;
 				if (n >= ETH_HEADER_SIZE)
 					unused = write(pfd[i + noif].fd, buf, n);
+				else if (n <= 0)
+					pfd[i].fd = pfd[i + noif].fd = -1;
+			}
+			if ((pfd[i].revents & POLLTERM) ||
+					(pfd[i + noif].revents & POLLTERM))	{
+				close(pfd[i + noif].fd);
+				pfd[i].fd = pfd[i + noif].fd = -1;
 			}
 		}
 		(void) unused;
