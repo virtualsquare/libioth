@@ -176,7 +176,7 @@ retNULL:
 }
 
 struct ioth *ioth_newstackv(const char *stack, const char *vnlv[]) {
-	char *options;
+	const char *options;
 	if (stack == NULL || (options = strchr(stack, ',')) == NULL)
 		return _ioth_newstackv(stack, "", vnlv);
 	else {

@@ -183,8 +183,8 @@ struct vdestack *vde_addstack(const char *vnlv[], const char *options) {
 
 		for (i = 0; i < noif; i++) {
 			const char *ifvnl = vnlv[i];
-			char *delim = strstr(ifvnl, "://");  // position of "://"
-			char *colonmark = strchr(ifvnl, ':'); // position of ':'
+			const char *delim = strstr(ifvnl, "://");  // position of "://"
+			const char *colonmark = strchr(ifvnl, ':'); // position of ':'
 			if (colonmark && (!delim  || (delim && colonmark < delim))) {
 				/* spit ifname from vnl */
 				int ifnamelen = colonmark - ifvnl;
