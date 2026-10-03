@@ -36,7 +36,9 @@ sudo make uninstall
 There are three flavours of `ioth_newstack`:
 ```C
 struct ioth *ioth_newstack(const char *stack, const char *vnl);
+
 struct ioth *ioth_newstackl(const char *stack, const char *vnl, ... /* (char  *) NULL */);
+
 struct ioth *ioth_newstackv(const char *stack, const char *vnlv[]);
 ```
 * `ioth_newstack` creates a new stack without any interface if `vnl` is NULL, otherwise the new stack has a virtual interface connected to the vde network identified by the VNL (Virtual Network Locator, see
@@ -63,6 +65,7 @@ This is the multi-stack supporting extension of `socket`(2). It behaves exactly 
 
 ```C
 void ioth_set_defstack(struct ioth *iothstack);
+
 struct ioth *ioth_get_defstack(void);
 ```
 
@@ -104,8 +107,10 @@ int ioth_socket(int domain, int type, int protocol);
 `ioth_writev`,
 `ioth_send`,
 `ioth_sendto` and
-`ioth_sendmsg` have the same signature and functionalities of their counterpart
- without the `ioth_` prefix.
+`ioth_sendmsg`
+
+have the same signature and functionalities of their counterpart
+without the `ioth_` prefix.
 
 ### extra features for free: nlinline netlink configuration functions
 
@@ -113,17 +118,28 @@ int ioth_socket(int domain, int type, int protocol);
 for the stack interface/ip address and route configuration:
 ```C
 int ioth_if_nametoindex(struct ioth *iothstack, const char *ifname);
+
 int ioth_linksetupdown(struct ioth *iothstack, unsigned int ifindex, int updown);
-int ioth_ipaddr_add(struct ioth *iothstack, int family, void *addr, int prefixlen, unsigned int ifindex);
-int ioth_ipaddr_del(struct ioth *iothstack, int family, void *addr, int prefixlen, unsigned int ifindex);
-int ioth_iproute_add(struct ioth *iothstack, int family, void *dst_addr, int dst_prefixlen, void *gw_addr,
-    unsigned int ifindex);
-int ioth_iproute_del(struct ioth *iothstack, int family, void *dst_addr, int dst_prefixlen, void *gw_addr,
-    unsigned int ifindex);
-int ioth_iplink_add(struct ioth *iothstack, const char *ifname, unsigned int ifindex, const char *type,
-    const char *data);
+
+int ioth_ipaddr_add(struct ioth *iothstack,
+        int family, void *addr, int prefixlen, unsigned int ifindex);
+
+int ioth_ipaddr_del(struct ioth *iothstack,
+        int family, void *addr, int prefixlen, unsigned int ifindex);
+
+int ioth_iproute_add(struct ioth *iothstack,
+        int family, void *dst_addr, int dst_prefixlen, void *gw_addr, unsigned int ifindex);
+
+int ioth_iproute_del(struct ioth *iothstack,
+        int family, void *dst_addr, int dst_prefixlen, void *gw_addr, unsigned int ifindex);
+
+int ioth_iplink_add(struct ioth *iothstack,
+        const char *ifname, unsigned int ifindex, const char *type, const char *data);
+
 int ioth_iplink_del(struct ioth *iothstack, const char *ifname, unsigned int ifindex);
+
 int ioth_linksetaddr(struct ioth *iothstack, unsigned int ifindex, void *macaddr);
+
 int ioth_linkgetaddr(struct ioth *iothstack, unsigned int ifindex, void *macaddr);
 
 ```
