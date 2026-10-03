@@ -112,19 +112,19 @@ int ioth_socket(int domain, int type, int protocol);
 [`nlinline+`](https://github.com/virtualsquare/nlinline) provides a set of inline functions
 for the stack interface/ip address and route configuration:
 ```C
-int ioth_if_nametoindex(const char *ifname);
-int ioth_linksetupdown(unsigned int ifindex, int updown);
-int ioth_ipaddr_add(int family, void *addr, int prefixlen, unsigned int ifindex);
-int ioth_ipaddr_del(int family, void *addr, int prefixlen, unsigned int ifindex);
-int ioth_iproute_add(int family, void *dst_addr, int dst_prefixlen, void *gw_addr,
+int ioth_if_nametoindex(struct ioth *iothstack, const char *ifname);
+int ioth_linksetupdown(struct ioth *iothstack, unsigned int ifindex, int updown);
+int ioth_ipaddr_add(struct ioth *iothstack, int family, void *addr, int prefixlen, unsigned int ifindex);
+int ioth_ipaddr_del(struct ioth *iothstack, int family, void *addr, int prefixlen, unsigned int ifindex);
+int ioth_iproute_add(struct ioth *iothstack, int family, void *dst_addr, int dst_prefixlen, void *gw_addr,
     unsigned int ifindex);
-int ioth_iproute_del(int family, void *dst_addr, int dst_prefixlen, void *gw_addr,
+int ioth_iproute_del(struct ioth *iothstack, int family, void *dst_addr, int dst_prefixlen, void *gw_addr,
     unsigned int ifindex);
-int ioth_iplink_add(const char *ifname, unsigned int ifindex, const char *type,
+int ioth_iplink_add(struct ioth *iothstack, const char *ifname, unsigned int ifindex, const char *type,
     const char *data);
-int ioth_iplink_del(const char *ifname, unsigned int ifindex);
-int ioth_linksetaddr(unsigned int ifindex, void *macaddr);
-int ioth_linkgetaddr(unsigned int ifindex, void *macaddr);
+int ioth_iplink_del(struct ioth *iothstack, const char *ifname, unsigned int ifindex);
+int ioth_linksetaddr(struct ioth *iothstack, unsigned int ifindex, void *macaddr);
+int ioth_linkgetaddr(struct ioth *iothstack, unsigned int ifindex, void *macaddr);
 
 ```
 
